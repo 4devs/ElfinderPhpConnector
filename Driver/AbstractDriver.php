@@ -10,8 +10,9 @@
 namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\Connector;
+use FDevs\ElfinderPhpConnector\Driver\Command\BaseInterface;
 
-abstract class AbstractDriver implements DriverInterface
+abstract class AbstractDriver implements BaseInterface
 {
     /**
      * @var string
@@ -128,4 +129,19 @@ abstract class AbstractDriver implements DriverInterface
         return $this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function mount()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function unmount()
+    {
+        return true;
+    }
 }

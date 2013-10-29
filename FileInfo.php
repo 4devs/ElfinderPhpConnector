@@ -11,6 +11,7 @@ namespace FDevs\ElfinderPhpConnector;
 
 class FileInfo
 {
+    const DIRECTORY_MIME_TYPE = 'directory';
     /**
      * @var string
      */
@@ -26,7 +27,7 @@ class FileInfo
     /**
      * @var string
      */
-    private $mime = 'directory';
+    private $mime = self::DIRECTORY_MIME_TYPE;
     /**
      * @var integer
      */

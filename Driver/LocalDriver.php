@@ -11,6 +11,7 @@ namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\FileInfo;
 use FDevs\ElfinderPhpConnector\Response;
+use FDevs\ElfinderPhpConnector\Util\MimeType;
 
 class LocalDriver extends AbstractDriver
 {
@@ -61,14 +62,10 @@ class LocalDriver extends AbstractDriver
      */
     public function open(array $args, Response $response)
     {
-        $name = $this->getNameFromArgs($args);
-        if (!$name) {
-            return $response;
-        }
-
+        $name = $this->getPathFromArgs($args);
         if ($name == $this->driverOptions['path']) {
             $this->init($args, $response);
-        } else {
+        } elseif ($name) {
             $url = $this->driverOptions['host'] . DIRECTORY_SEPARATOR . $this->driverOptions['path'] . DIRECTORY_SEPARATOR;
             $response->setFiles(array());
             $this->addOption('path', $name);
@@ -83,54 +80,12 @@ class LocalDriver extends AbstractDriver
         return $response;
     }
 
-    private function getNameFromArgs(array $args)
+    /**
+     * {@inheritDoc}
+     */
+    public function mount()
     {
-        $name = '';
-        if (isset($args['target']) && $args['target']) {
-            $name = $this->getNameFromTarget($args['target']);
-        }
-
-        return $name;
-    }
-
-    private function getNameFromTarget($target)
-    {
-        return FileInfo::decode(substr($target, strlen($this->getDriverId()) + 1));
-    }
-
-    private function scanDir($dir)
-    {
-        $files = array();
-        chdir($this->driverOptions['rootDir']);
-        foreach (scandir($dir) as $name) {
-            if ($this->isShowFile($name)) {
-                $file = $this->getFileInfo($dir . DIRECTORY_SEPARATOR . $name);
-                $files[] = $file;
-                if ($file->isDir()) {
-                    if (count(glob($dir . DIRECTORY_SEPARATOR . $file->getName() . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR))) {
-                        $file->setDirs(1);
-                    }
-                }
-            }
-        }
-
-        return $files;
-    }
-
-    private function getFileInfo($file)
-    {
-        $fileStat = stat($file);
-        $directory = dirname($file) == '.' ? '' : dirname($file);
-        $fileInfo = new FileInfo(basename($file), $this->getDriverId(), $fileStat['mtime'], $directory);
-        $fileInfo->setSize($fileStat['size']);
-        $fileInfo->setWrite(is_writable($file));
-        if (is_file($file)) {
-            $finfo = new \finfo(FILEINFO_MIME);
-            $fileInfo->setMime($finfo->file($file));
-        }
-        $fileInfo->setLocked($this->driverOptions['locked']);
-
-        return $fileInfo;
+        return chdir($this->driverOptions['rootDir']);
     }
 
 
@@ -149,7 +104,7 @@ class LocalDriver extends AbstractDriver
      */
     public function tree(array $args, Response $response)
     {
-        $name = $this->getNameFromArgs($args) ? : $this->driverOptions['path'];
+        $name = $this->getPathFromArgs($args) ? : $this->driverOptions['path'];
         $response->setTree($this->scanDir($name));
 
         return $response;
@@ -210,8 +165,7 @@ class LocalDriver extends AbstractDriver
     public function mkdir(array $args, Response $response)
     {
         $dirName = isset($args['name']) && $args['name'] ? $args['name'] : '';
-        if ($dirName && $name = $this->getNameFromArgs($args)) {
-            chdir($this->driverOptions['rootDir']);
+        if ($dirName && $name = $this->getPathFromArgs($args)) {
             $dirName = $name . DIRECTORY_SEPARATOR . $dirName;
             @mkdir($dirName);
             $dir = $this->getFileInfo($dirName);
@@ -226,9 +180,8 @@ class LocalDriver extends AbstractDriver
      */
     public function mkfile(array $args, Response $response)
     {
-        if ($name = $this->getNameFromArgs($args) && isset($args['name']) && $args['name']) {
+        if ($name = $this->getPathFromArgs($args) && isset($args['name']) && $args['name']) {
             $name = $name . DIRECTORY_SEPARATOR . $args['name'];
-            chdir($this->driverOptions['rootDir']);
             $fp = fopen($name, 'w');
             fclose($fp);
             $file = $this->getFileInfo($name);
@@ -244,9 +197,8 @@ class LocalDriver extends AbstractDriver
     public function rm(array $args, Response $response)
     {
         if (isset($args['targets'])) {
-            chdir($this->driverOptions['rootDir']);
             foreach ($args['targets'] as $target) {
-                $name = $this->getNameFromTarget($target);
+                $name = $this->getPathFromTarget($target);
                 if (is_dir($name)) {
                     rmdir($name);
                 } else {
@@ -306,17 +258,25 @@ class LocalDriver extends AbstractDriver
      */
     public function get(array $args, Response $response)
     {
-        // TODO: Implement get() method.
+        if ($name = $this->getPathFromArgs($args)) {
+            $response->setContent(file_get_contents($name));
+        }
+
+        return $response;
     }
 
     /**
-     * save text file
-     *
-     * @return mixed
+     * {@inheritDoc}
      */
     public function put(array $args, Response $response)
     {
-        // TODO: Implement put() method.
+        if ($name = $this->getPathFromArgs($args) && isset($args['content'])) {
+            $fp = fopen($name, 'w');
+            fwrite($fp, $args['content']);
+            fclose($fp);
+        }
+
+        return $response;
     }
 
     /**
@@ -392,6 +352,98 @@ class LocalDriver extends AbstractDriver
             $response = false;
         }
         return $response;
+    }
+
+    /**
+     * get file info by full path file name
+     *
+     * @param string $file
+     * @return FileInfo
+     */
+    private function getFileInfo($file)
+    {
+        $fileStat = stat($file);
+        $directory = dirname($file) == '.' ? '' : dirname($file);
+        $fileInfo = new FileInfo(basename($file), $this->getDriverId(), $fileStat['mtime'], $directory);
+        $fileInfo->setSize($fileStat['size']);
+        $fileInfo->setWrite(is_writable($file));
+        $fileInfo->setMime($this->getMimeType($file));
+        $fileInfo->setLocked($this->driverOptions['locked']);
+
+        return $fileInfo;
+    }
+
+    /**
+     * get Mime Type by File
+     *
+     * @param string $file
+     * @return string
+     */
+    private function getMimeType($file)
+    {
+        $type = FileInfo::DIRECTORY_MIME_TYPE;
+        if (is_file($file)) {
+            if (class_exists('finfo')) {
+                $finfo = new \finfo(FILEINFO_MIME);
+                $type = $finfo->file($file);
+            } else {
+                $type = MimeType::getTypeByExt(pathinfo($file, PATHINFO_EXTENSION));
+            }
+        }
+        $type = strstr($type, ';', true) ? : $type;
+
+        return isset(MimeType::$internalType[$type]) ? MimeType::$internalType[$type] : $type;
+    }
+
+    /**
+     * get Files by dir name
+     *
+     * @param string $dir
+     * @return FileInfo[]
+     */
+    private function scanDir($dir)
+    {
+        $files = array();
+        foreach (scandir($dir) as $name) {
+            if ($this->isShowFile($name)) {
+                $file = $this->getFileInfo($dir . DIRECTORY_SEPARATOR . $name);
+                $files[] = $file;
+                if ($file->isDir()) {
+                    if (count(glob($dir . DIRECTORY_SEPARATOR . $file->getName() . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR))) {
+                        $file->setDirs(1);
+                    }
+                }
+            }
+        }
+
+        return $files;
+    }
+
+    /**
+     * get full path from target
+     *
+     * @param string $target
+     * @return string
+     */
+    private function getPathFromTarget($target)
+    {
+        return FileInfo::decode(substr($target, strlen($this->getDriverId()) + 1));
+    }
+
+    /**
+     * get Path from args
+     *
+     * @param array $args
+     * @return string
+     */
+    private function getPathFromArgs(array $args)
+    {
+        $name = '';
+        if (isset($args['target']) && $args['target']) {
+            $name = $this->getPathFromTarget($args['target']);
+        }
+
+        return $name;
     }
 
 

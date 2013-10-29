@@ -10,9 +10,10 @@
 namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\Connector;
+use FDevs\ElfinderPhpConnector\Driver\Command\BaseInterface;
 use FDevs\ElfinderPhpConnector\Response;
 
-interface DriverInterface extends CommandListInterface
+interface DriverInterface extends BaseInterface
 {
     const VERSION = 2.0;
     const PHASH = 'Lw';
@@ -87,4 +88,20 @@ interface DriverInterface extends CommandListInterface
      * @return Response
      */
     public function init(array $args, Response $response);
+
+    /**
+     * mount Driver
+
+     *
+     * @return boolean
+     */
+    public function mount();
+
+    /**
+     * unmount Driver
+     * run all command after run all command
+     *
+     * @return boolean
+     */
+    public function unmount();
 }

@@ -58,6 +58,11 @@ class Response
     private $removed;
 
     /**
+     * @var string
+     */
+    private $content;
+
+    /**
      * get response as array
      *
      * @return array
@@ -76,6 +81,7 @@ class Response
             'removed' => $this->getRemoved(true),
             'tree' => $this->getTree(true),
             'uplMaxSize' => $this->getUplMaxSize(),
+            'content' => $this->getContent(),
         );
 
         return array_filter($data, function ($var) {
@@ -435,6 +441,29 @@ class Response
     public function getUplMaxSize()
     {
         return $this->uplMaxSize;
+    }
+
+    /**
+     * set Content
+     *
+     * @param string $content
+     * @return $this
+     */
+    public function setContent($content)
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * get Content
+     *
+     * @return string
+     */
+    public function getContent()
+    {
+        return $this->content;
     }
 
 }
