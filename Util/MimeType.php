@@ -13,11 +13,18 @@ namespace FDevs\ElfinderPhpConnector\Util;
 class MimeType
 {
 
+    /**
+     * @var array
+     */
     public static $internalType = array(
         'application/x-empty' => 'text/plain',
         'inode/x-empty' => 'text/plain',
         'application/x-zip' => 'application/zip',
     );
+
+    /**
+     * @var array
+     */
     protected static $extension = array(
         // applications
         'ai' => 'application/postscript',
@@ -134,6 +141,12 @@ class MimeType
         'ogm' => 'video/ogg'
     );
 
+    /**
+     * get Type By Extensions
+     *
+     * @param string $ext
+     * @return string
+     */
     public static function getTypeByExt($ext)
     {
         return isset(self::$extension[$ext]) ? self::$extension[$ext] : 'unknown';

@@ -21,7 +21,7 @@ interface ArchiveInterface
      * @param string $current
      * @param array $targets
      */
-    public function archive(Response $response, $type, $current, $targets);
+    public function archive(Response $response, $type, $current, array $targets);
 
     /**
      * Unpacks an archive.

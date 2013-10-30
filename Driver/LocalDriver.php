@@ -9,16 +9,19 @@
 
 namespace FDevs\ElfinderPhpConnector\Driver;
 
+use FDevs\ElfinderPhpConnector\Driver\Command\TextInterface;
 use FDevs\ElfinderPhpConnector\FileInfo;
 use FDevs\ElfinderPhpConnector\Response;
 use FDevs\ElfinderPhpConnector\Util\MimeType;
+use Symfony\Bundle\AsseticBundle\DependencyInjection\DirectoryResourceDefinition;
 
-class LocalDriver extends AbstractDriver
+class LocalDriver extends AbstractDriver implements TextInterface
 {
     /**
      * @var string
      */
     protected $driverId = 'local';
+
     /**
      * @var array
      */
@@ -38,63 +41,83 @@ class LocalDriver extends AbstractDriver
     /**
      * {@inheritDoc}
      */
-    public function init(array $args, Response $response)
-    {
-        $tree = isset($args['tree']) ? $args['tree'] : false;
-
-        $response->setFiles($this->scanDir($this->driverOptions['path']));
-        $root = $this->getFileInfo($this->driverOptions['path']);
-        $root->setVolumeid($this->getDriverId() . '_');
-        $root->setHash($this->getDriverId() . '_' . FileInfo::encode($this->driverOptions['path']));
-        $root->setPhash(null);
-        $root->setDirs(1);
-        $response->setCwd($root);
-        $response->addFile($root);
-        if ($tree) {
-            $this->tree($args, $response);
-        }
-
-        return $response;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function open(array $args, Response $response)
-    {
-        $name = $this->getPathFromArgs($args);
-        if ($name == $this->driverOptions['path']) {
-            $this->init($args, $response);
-        } elseif ($name) {
-            $url = $this->driverOptions['host'] . DIRECTORY_SEPARATOR . $this->driverOptions['path'] . DIRECTORY_SEPARATOR;
-            $response->setFiles(array());
-            $this->addOption('path', $name);
-            $this->addOption('url', $url);
-            $this->addOption('tmbURL', $url . $this->driverOptions['tmbPath'] . DIRECTORY_SEPARATOR);
-
-            $dir = $this->getFileInfo($name);
-            $response->setCwd($dir);
-            $response->setFiles($this->scanDir($name));
-        }
-
-        return $response;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function mount()
     {
         return chdir($this->driverOptions['rootDir']);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function open(Response $response, $target = '', $tree = false, $init = false)
+    {
+        $target = $target ? : $this->driverOptions['path'];
+
+        $url = $this->driverOptions['host'] . DIRECTORY_SEPARATOR . $this->driverOptions['path'] . DIRECTORY_SEPARATOR;
+        $this->addOption('path', $target);
+        $this->addOption('url', $url);
+        $this->addOption('tmbURL', $url . $this->driverOptions['tmbPath'] . DIRECTORY_SEPARATOR);
+
+        $dir = $this->getFileInfo($target);
+        $response->setCwd($dir);
+        $response->setFiles($this->scanDir($target));
+
+        if ($init) {
+            $response->setApi(DriverInterface::VERSION);
+            $response->appendFiles($this->scanDir($this->driverOptions['path']));
+            $root = $this->getFileInfo($this->driverOptions['path']);
+            $root->setVolumeid($this->getDriverId() . '_');
+            $root->setPhash(null);
+            $response->addFile($root);
+        }
+
+        if ($tree) {
+            $this->tree($response, $this->driverOptions['path']);
+        }
+
+        return $response;
+    }
 
     /**
-     * output file contents to the browser (download)
-     *
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function file(array $args, Response $response)
+    public function tree(Response $response, $target)
+    {
+        $response->setTree($this->scanDir($target, GLOB_ONLYDIR));
+
+        return $response;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function parents(Response $response, $target)
+    {
+        do {
+            $this->tree($response, $target);
+        } while ($target = trim(dirname($target), '.'));
+    }
+
+    /**
+     * Process file upload requests. Client may request the upload of multiple files at once.
+     *
+     * @param Response $response
+     * @param string $target
+     * @param array $files
+     */
+    public function upload(Response $response, $target, array $files)
+    {
+        // TODO: Implement upload() method.
+    }
+
+    /**
+     * Output file into browser.
+     *
+     * @param Response $response
+     * @param string $target
+     * @param bool $download
+     */
+    public function file(Response $response, $target, $download = false)
     {
         // TODO: Implement file() method.
     }
@@ -102,61 +125,46 @@ class LocalDriver extends AbstractDriver
     /**
      * {@inheritDoc}
      */
-    public function tree(array $args, Response $response)
+    public function ls(Response $response, $target)
     {
-        $name = $this->getPathFromArgs($args) ? : $this->driverOptions['path'];
-        $response->setTree($this->scanDir($name));
-
-        return $response;
+        $files = array_filter(glob($target . '/*', GLOB_MARK), function ($val) {
+            return substr($val, -1, 1) != DIRECTORY_SEPARATOR;
+        });
+        $files = array_map(function ($val) {
+            return basename($val);
+        }, $files);
+        $response->setList(array_values($files));
     }
 
     /**
      * {@inheritDoc}
      */
-    public function parents(array $args, Response $response)
+    public function search(Response $response, $q)
     {
-        return $this->tree($args, $response);
+        $pattern = '/*';
+        do {
+            $files = glob($this->driverOptions['path'] . $pattern . $q . '*');
+            foreach ($files as $file) {
+                $response->addFile($this->getFileInfo($file));
+            }
+            $pattern = $pattern . '/*';
+
+        } while (glob($this->driverOptions['path'] . $pattern, GLOB_ONLYDIR));
     }
 
     /**
-     *  list files in directory
-     *
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function ls(array $args, Response $response)
+    public function size(Response $response, array $targets)
     {
-        var_dump($args);
-        return $response;
-    }
-
-    /**
-     * create thumbnails for selected files
-     *
-     * @return mixed
-     */
-    public function tmb(array $args, Response $response)
-    {
-        // TODO: Implement tmb() method.
-    }
-
-    /**
-     * return size for selected files or total folder(s) size
-     *
-     * @return mixed
-     */
-    public function size(array $args, Response $response)
-    {
-        // TODO: Implement size() method.
-    }
-
-    /**
-     * return image dimensions
-     *
-     * @return mixed
-     */
-    public function dim(array $args, Response $response)
-    {
-        // TODO: Implement dim() method.
+        $response->incSize(0);
+        foreach ($targets as $target) {
+            if (is_dir($target)) {
+                $this->size($response, glob($target . DIRECTORY_SEPARATOR . '*'));
+            } else {
+                $response->incSize(filesize($target));
+            }
+        }
     }
 
     /**
@@ -170,22 +178,6 @@ class LocalDriver extends AbstractDriver
             @mkdir($dirName);
             $dir = $this->getFileInfo($dirName);
             $response->addAdded($dir);
-        }
-
-        return $response;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function mkfile(array $args, Response $response)
-    {
-        if ($name = $this->getPathFromArgs($args) && isset($args['name']) && $args['name']) {
-            $name = $name . DIRECTORY_SEPARATOR . $args['name'];
-            $fp = fopen($name, 'w');
-            fclose($fp);
-            $file = $this->getFileInfo($name);
-            $response->addAdded($file);
         }
 
         return $response;
@@ -211,132 +203,35 @@ class LocalDriver extends AbstractDriver
         return $response;
     }
 
-    /**
-     * rename file
-     *
-     * @return mixed
-     */
-    public function rename(array $args, Response $response)
-    {
-        // TODO: Implement rename() method.
-    }
 
     /**
-     * create copy of file
-     *
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function duplicate(array $args, Response $response)
+    public function get(Response $response, $target)
     {
-        // TODO: Implement duplicate() method.
-    }
-
-    /**
-     * copy or move files
-     *
-     * @return mixed
-     */
-    public function paste(array $args, Response $response)
-    {
-        // TODO: Implement paste() method.
-    }
-
-    /**
-     * upload file
-     *
-     * @return mixed
-     */
-    public function upload(array $args, Response $response)
-    {
-        // TODO: Implement upload() method.
-    }
-
-    /**
-     * return text file contents
-     *
-     * @return mixed
-     */
-    public function get(array $args, Response $response)
-    {
-        if ($name = $this->getPathFromArgs($args)) {
-            $response->setContent(file_get_contents($name));
-        }
-
-        return $response;
+        $response->setContent(file_get_contents($target));
     }
 
     /**
      * {@inheritDoc}
      */
-    public function put(array $args, Response $response)
+    public function put(Response $response, $target, $content = '')
     {
-        if ($name = $this->getPathFromArgs($args) && isset($args['content'])) {
-            $fp = fopen($name, 'w');
-            fwrite($fp, $args['content']);
-            fclose($fp);
-        }
-
-        return $response;
+        $fp = fopen($target, 'w');
+        fwrite($fp, $content);
+        fclose($fp);
     }
 
     /**
-     * create archive
-     *
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function archive(array $args, Response $response)
+    public function mkfile(Response $response, $target, $name)
     {
-        // TODO: Implement archive() method.
-    }
-
-    /**
-     * extract archive
-     *
-     * @return mixed
-     */
-    public function extract(array $args, Response $response)
-    {
-        // TODO: Implement extract() method.
-    }
-
-    /**
-     * search for files
-     *
-     * @return mixed
-     */
-    public function search(array $args, Response $response)
-    {
-        // TODO: Implement search() method.
-    }
-
-    /**
-     * return info for files. (used by client "places" ui)
-     *
-     * @return mixed
-     */
-    public function info(array $args, Response $response)
-    {
-        // TODO: Implement info() method.
-    }
-
-    /**
-     * modify image file (resize/crop/rotate)
-     *
-     * @return mixed
-     */
-    public function resize(array $args, Response $response)
-    {
-        // TODO: Implement resize() method.
-    }
-
-    /**
-     * mount network volume during user session. Only ftp now supported.
-     *
-     * @return mixed
-     */
-    public function netmount(array $args, Response $response)
-    {
-        // TODO: Implement netmount() method.
+        $fullName = $target . DIRECTORY_SEPARATOR . $name;
+        $fp = fopen($fullName, 'w');
+        fclose($fp);
+        $file = $this->getFileInfo($fullName);
+        $response->addAdded($file);
     }
 
     /**
@@ -399,17 +294,18 @@ class LocalDriver extends AbstractDriver
      * get Files by dir name
      *
      * @param string $dir
+     * @param int $onlyDir
      * @return FileInfo[]
      */
-    private function scanDir($dir)
+    private function scanDir($dir, $onlyDir = 0)
     {
         $files = array();
-        foreach (scandir($dir) as $name) {
+        foreach (glob($dir . '/*', $onlyDir) as $name) {
             if ($this->isShowFile($name)) {
-                $file = $this->getFileInfo($dir . DIRECTORY_SEPARATOR . $name);
+                $file = $this->getFileInfo($name);
                 $files[] = $file;
                 if ($file->isDir()) {
-                    if (count(glob($dir . DIRECTORY_SEPARATOR . $file->getName() . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR))) {
+                    if (count(glob($name . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR))) {
                         $file->setDirs(1);
                     }
                 }
@@ -418,33 +314,5 @@ class LocalDriver extends AbstractDriver
 
         return $files;
     }
-
-    /**
-     * get full path from target
-     *
-     * @param string $target
-     * @return string
-     */
-    private function getPathFromTarget($target)
-    {
-        return FileInfo::decode(substr($target, strlen($this->getDriverId()) + 1));
-    }
-
-    /**
-     * get Path from args
-     *
-     * @param array $args
-     * @return string
-     */
-    private function getPathFromArgs(array $args)
-    {
-        $name = '';
-        if (isset($args['target']) && $args['target']) {
-            $name = $this->getPathFromTarget($args['target']);
-        }
-
-        return $name;
-    }
-
 
 }

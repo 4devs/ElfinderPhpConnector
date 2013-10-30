@@ -10,9 +10,8 @@
 namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\Connector;
-use FDevs\ElfinderPhpConnector\Driver\Command\BaseInterface;
 
-abstract class AbstractDriver implements BaseInterface
+abstract class AbstractDriver implements DriverInterface
 {
     /**
      * @var string
@@ -40,6 +39,20 @@ abstract class AbstractDriver implements BaseInterface
      * @var array
      */
     protected $driverOptions = array();
+
+    /**
+     * add option
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return $this
+     */
+    public function addOption($key, $value)
+    {
+        $this->options[$key] = $value;
+
+        return $this;
+    }
 
     /**
      * {@inheritDoc}
@@ -85,20 +98,6 @@ abstract class AbstractDriver implements BaseInterface
     public function addOptions(array $options)
     {
         $this->options = array_merge($this->options, $options);
-
-        return $this;
-    }
-
-    /**
-     * add option
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return $this
-     */
-    public function addOption($key, $value)
-    {
-        $this->options[$key] = $value;
 
         return $this;
     }

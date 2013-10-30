@@ -81,17 +81,7 @@ interface DriverInterface extends BaseInterface
     public function getDriverId();
 
     /**
-     * init driver run command if in request init=true
-     *
-     * @param array $args
-     * @param Response $response
-     * @return Response
-     */
-    public function init(array $args, Response $response);
-
-    /**
      * mount Driver
-
      *
      * @return boolean
      */

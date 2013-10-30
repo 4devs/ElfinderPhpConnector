@@ -83,15 +83,7 @@ class Connector
         $response = new Response();
         $driverId = isset($args['target']) ? $this->getDriverId($args['target']) : '';
         $driverId = !$driverId && isset($args['targets']) ? $this->getDriverId(current($args['targets'])) : $driverId;
-        if ($cmd === 'open' && isset($args['init']) && $args['init']) {
-            $response->setApi(DriverInterface::VERSION);
-            foreach ($this->driverList as $driver) {
-                if ($driver->mount()) {
-                    $driver->init($args, $response);
-                }
-                $driver->unmount();
-            }
-        } elseif ($driverId && isset($this->driverList[$driverId])) {
+        if ($driverId && isset($this->driverList[$driverId])) {
             /** @var DriverInterface $driver */
             $driver = $this->driverList[$driverId];
             $interface = 'FDevs\ElfinderPhpConnector\Driver\Command\\' . $this->commands[$cmd]['interface'] . 'Interface';
@@ -103,6 +95,13 @@ class Connector
                 $driver->unmount();
             } else {
                 $this->error(sprintf('command "%s" not supported, please use interface "%s"', $cmd, $interface));
+            }
+        } else {
+            foreach ($this->driverList as $driver) {
+                if ($driver->mount()) {
+                    $this->runCmd($driver, $cmd, $args, $response);
+                }
+                $driver->unmount();
             }
         }
 
@@ -210,12 +209,35 @@ class Connector
     {
         try {
             if ($driver->isAllowedCommand($cmd)) {
-                $driver->{$cmd}($response, $args);
+                call_user_func_array(array($driver, $cmd), $this->getArgs($args, $cmd, $response, $driver->getDriverId()));
             } else {
                 $this->error(sprintf('command "%s" not allowed', $cmd));
             }
         } catch (Exception $e) {
             $this->error($e->getMessage());
+        }
+
+        return $response;
+    }
+
+    private function getArgs(array $args, $cmd, $response, $driverId)
+    {
+        $response = array($response);
+        $allowedArgs = $this->commands[$cmd];
+        unset($allowedArgs['interface']);
+        foreach ($allowedArgs as $key => $value) {
+            if (isset($args[$key])) {
+                $response[$key] = $args[$key];
+                if ($key == 'target') {
+                    $response[$key] = FileInfo::decode(substr($args[$key], strlen($driverId) + 1));
+                } elseif ($key == 'targets') {
+                    $response[$key] = array_map(function ($val) use ($driverId) {
+                        return FileInfo::decode(substr($val, strlen($driverId) + 1));
+                    }, $args[$key]);
+                }
+            } elseif ($value) {
+                $this->error(sprintf('parameter "%s" required', $key));
+            }
         }
 
         return $response;

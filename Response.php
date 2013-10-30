@@ -45,7 +45,7 @@ class Response
      */
     private $tree;
     /**
-     * @var FileInfo[]
+     * @var array
      */
     private $list;
     /**
@@ -63,6 +63,11 @@ class Response
     private $content;
 
     /**
+     * @var int
+     */
+    private $size;
+
+    /**
      * get response as array
      *
      * @return array
@@ -75,18 +80,55 @@ class Response
             'cwd' => $this->getCwd(true),
             'debug' => $this->getDebug(),
             'files' => $this->getFiles(true),
-            'list' => $this->getList(true),
+            'list' => $this->getList(),
             'netDrivers' => $this->getNetDrivers(),
             'options' => $this->getOptions(),
             'removed' => $this->getRemoved(true),
             'tree' => $this->getTree(true),
             'uplMaxSize' => $this->getUplMaxSize(),
             'content' => $this->getContent(),
+            'size' => $this->getSize(),
         );
 
         return array_filter($data, function ($var) {
-            return is_array($var) || (boolean)$var;
+            return !is_null($var);
         });
+    }
+
+    /**
+     * set Size
+     *
+     * @param int $size
+     * @return $this
+     */
+    public function setSize($size)
+    {
+        $this->size = $size;
+
+        return $this;
+    }
+
+    /**
+     * increment Size
+     *
+     * @param int $size
+     * @return $this
+     */
+    public function incSize($size)
+    {
+        $this->size = (int)$this->size + $size;
+
+        return $this;
+    }
+
+    /**
+     * get Size
+     *
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
     }
 
     /**
@@ -214,6 +256,22 @@ class Response
     }
 
     /**
+     * append Files
+     *
+     * @param array $files
+     * @return $this
+     */
+    public function appendFiles(array $files)
+    {
+        foreach ($files as $file) {
+            $this->addFile($file);
+        }
+
+        return $this;
+
+    }
+
+    /**
      * add File
      *
      * @param FileInfo $file
@@ -251,22 +309,7 @@ class Response
      */
     public function setList(array $list)
     {
-        foreach ($list as $file) {
-            $this->addFileList($file);
-        }
-
-        return $this;
-    }
-
-    /**
-     * add file to list
-     *
-     * @param FileInfo $file
-     * @return $this
-     */
-    public function addFileList(FileInfo $file)
-    {
-        $this->list[$file->getHash()] = $file;
+        $this->list = $list;
 
         return $this;
     }
@@ -274,19 +317,11 @@ class Response
     /**
      * get List
      *
-     * @param  boolean $asArray
-     * @return array|FileInfo[]
+     * @return array
      */
-    public function getList($asArray = false)
+    public function getList()
     {
-        $return = array();
-        if ($asArray && $this->list) {
-            foreach ($this->list as $file) {
-                $return[] = $file->toArray();
-            }
-        }
-
-        return $asArray ? $return : $this->list;
+        return $this->list;
     }
 
     /**

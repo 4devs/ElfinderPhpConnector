@@ -27,7 +27,6 @@ interface TextInterface
      * @param Response $response
      * @param string $target
      * @param string $content
-     * @return mixed
      */
     public function put(Response $response, $target, $content = '');
 
