@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/29/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -17,9 +17,9 @@ interface ArchiveInterface
      * Packs directories / files into an archive.
      *
      * @param Response $response
-     * @param string $type
-     * @param string $current
-     * @param array $targets
+     * @param string   $type
+     * @param string   $current
+     * @param array    $targets
      */
     public function archive(Response $response, $type, $current, array $targets);
 
@@ -27,8 +27,8 @@ interface ArchiveInterface
      * Unpacks an archive.
      *
      * @param Response $response
-     * @param string $current
-     * @param string $target
+     * @param string   $current
+     * @param string   $target
      */
     public function extract(Response $response, $current, $target);
 }

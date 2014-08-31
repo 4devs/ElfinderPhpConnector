@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/27/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -17,7 +17,7 @@ interface CommandListInterface
     /**
      * open directory
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -26,7 +26,7 @@ interface CommandListInterface
     /**
      * output file contents to the browser (download)
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -35,7 +35,7 @@ interface CommandListInterface
     /**
      * return child directories
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -44,7 +44,7 @@ interface CommandListInterface
     /**
      * return parent directories and its childs
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -53,7 +53,7 @@ interface CommandListInterface
     /**
      *  list files in directory
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -62,7 +62,7 @@ interface CommandListInterface
     /**
      * create thumbnails for selected files
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -71,7 +71,7 @@ interface CommandListInterface
     /**
      * return size for selected files or total folder(s) size
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -80,7 +80,7 @@ interface CommandListInterface
     /**
      * return image dimensions
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -89,7 +89,7 @@ interface CommandListInterface
     /**
      * create directory
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -98,7 +98,7 @@ interface CommandListInterface
     /**
      * delete file
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -107,7 +107,7 @@ interface CommandListInterface
     /**
      * rename file
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -116,7 +116,7 @@ interface CommandListInterface
     /**
      * create copy of file
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -125,7 +125,7 @@ interface CommandListInterface
     /**
      * copy or move files
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -134,7 +134,7 @@ interface CommandListInterface
     /**
      * upload file
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -143,7 +143,7 @@ interface CommandListInterface
     /**
      * create text file
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -152,7 +152,7 @@ interface CommandListInterface
     /**
      * return text file contents
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -161,7 +161,7 @@ interface CommandListInterface
     /**
      * save text file
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -170,7 +170,7 @@ interface CommandListInterface
     /**
      * create archive
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -179,7 +179,7 @@ interface CommandListInterface
     /**
      * extract archive
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -188,7 +188,7 @@ interface CommandListInterface
     /**
      * search for files
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -197,7 +197,7 @@ interface CommandListInterface
     /**
      * return info for files. (used by client "places" ui)
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -206,7 +206,7 @@ interface CommandListInterface
     /**
      * modify image file (resize/crop/rotate)
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
@@ -215,10 +215,10 @@ interface CommandListInterface
     /**
      * mount network volume during user session. Only ftp now supported.
      *
-     * @param  array $args
+     * @param  array    $args
      * @param  Response $response
      * @return Response
      */
     public function netmount(array $args, Response $response);
 
-} 
+}

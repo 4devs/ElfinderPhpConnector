@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/29/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -8,7 +8,6 @@
  */
 
 namespace FDevs\ElfinderPhpConnector\Util;
-
 
 class MimeType
 {
@@ -144,11 +143,11 @@ class MimeType
     /**
      * get Type By Extensions
      *
-     * @param string $ext
+     * @param  string $ext
      * @return string
      */
     public static function getTypeByExt($ext)
     {
         return isset(self::$extension[$ext]) ? self::$extension[$ext] : 'unknown';
     }
-} 
+}

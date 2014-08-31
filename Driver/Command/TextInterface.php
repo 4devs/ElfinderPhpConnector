@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/29/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -17,7 +17,7 @@ interface TextInterface
      * Returns the context of a text file.
      *
      * @param Response $response
-     * @param string $target
+     * @param string   $target
      */
     public function get(Response $response, $target);
 
@@ -25,8 +25,8 @@ interface TextInterface
      * Stores text in a file.
      *
      * @param Response $response
-     * @param string $target
-     * @param string $content
+     * @param string   $target
+     * @param string   $content
      */
     public function put(Response $response, $target, $content = '');
 
@@ -34,8 +34,8 @@ interface TextInterface
      * Create a new blank file.
      *
      * @param Response $response
-     * @param string $target
-     * @param string $name
+     * @param string   $target
+     * @param string   $name
      */
     public function mkfile(Response $response, $target, $name);
 }

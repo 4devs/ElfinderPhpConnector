@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author    Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/22/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -44,7 +44,8 @@ abstract class AbstractDriver implements DriverInterface
      * add option
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return $this
      */
     public function addOption($key, $value)
@@ -87,7 +88,24 @@ abstract class AbstractDriver implements DriverInterface
      */
     public function setDisabledCmd(array $cmd)
     {
-        $this->options['disabled'] = $cmd;
+        foreach ($cmd as $val) {
+            $this->addDisabledCmd($val);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addDisabledCmd($cmd)
+    {
+        if (!isset($this->options['disabled'])) {
+            $this->options['disabled'] = [];
+        }
+        if (array_search($cmd, $this->options['disabled']) === false) {
+            $this->options['disabled'][] = $cmd;
+        }
 
         return $this;
     }

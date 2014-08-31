@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author    Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/21/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -11,7 +11,6 @@ namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\Connector;
 use FDevs\ElfinderPhpConnector\Driver\Command\BaseInterface;
-use FDevs\ElfinderPhpConnector\Response;
 
 interface DriverInterface extends BaseInterface
 {
@@ -22,14 +21,23 @@ interface DriverInterface extends BaseInterface
      * set Driver Options
      *
      * @param array $options
+     *
      * @return $this
      */
     public function setDriverOptions(array $options);
 
     /**
+     * get Root File Info
+     *
+     * @return FileInfo
+     */
+    public function getRootFileInfo();
+
+    /**
      * is Allowed Command
      *
      * @param  string $cmdName
+     *
      * @return boolean
      */
     public function isAllowedCommand($cmdName);
@@ -45,14 +53,25 @@ interface DriverInterface extends BaseInterface
      * set Disabled Command
      *
      * @param  array $cmd
+     *
      * @return self
      */
     public function setDisabledCmd(array $cmd);
 
     /**
+     * add Disabled Command
+     *
+     * @param  string $cmd
+     *
+     * @return self
+     */
+    public function addDisabledCmd($cmd);
+
+    /**
      * add custom options
      *
      * @param  array $options
+     *
      * @return mixed
      */
     public function addOptions(array $options);
@@ -61,6 +80,7 @@ interface DriverInterface extends BaseInterface
      * set Connector
      *
      * @param Connector $connector
+     *
      * @return $this
      */
     public function setConnector(Connector $connector);
@@ -69,6 +89,7 @@ interface DriverInterface extends BaseInterface
      * set Driver Id
      *
      * @param string $driverId
+     *
      * @return $this
      */
     public function setDriverId($driverId);

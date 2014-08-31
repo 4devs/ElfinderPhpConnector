@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author    Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/21/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -9,10 +9,13 @@
 
 namespace FDevs\ElfinderPhpConnector;
 
+use FDevs\ElfinderPhpConnector\Driver\AbstractDriver;
 use FDevs\ElfinderPhpConnector\Driver\DriverInterface;
 use FDevs\ElfinderPhpConnector\Exception\Exception;
+use FDevs\ElfinderPhpConnector\Exception\RuntimeException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class Connector
 {
@@ -29,30 +32,51 @@ class Connector
         'ls' => array('target' => true, 'mimes' => false, 'interface' => 'Base'),
         'search' => array('q' => true, 'mimes' => false, 'interface' => 'Base'),
         'size' => array('targets' => true, 'interface' => 'Base'),
-        'upload' => array('target' => true, 'FILES' => true, 'mimes' => false, 'html' => false, 'interface' => 'Base'),
-
+        'upload' => array('target' => true, 'files' => true, 'mimes' => false, 'html' => false, 'interface' => 'File'),
         'mkdir' => array('target' => true, 'name' => true, 'interface' => 'File'),
         'rm' => array('targets' => true, 'interface' => 'File'),
         'rename' => array('target' => true, 'name' => true, 'mimes' => false, 'interface' => 'File'),
         'duplicate' => array('targets' => true, 'suffix' => false, 'interface' => 'File'),
-        'paste' => array('dst' => true, 'targets' => true, 'cut' => false, 'mimes' => false, 'interface' => 'File'),
+        'paste' => array(
+            'src' => true,
+            'dst' => true,
+            'targets' => true,
+            'cut' => false,
+            'interface' => 'File'
+        ),
         'info' => array('targets' => true, 'interface' => 'File'),
-
         'tmb' => array('targets' => true, 'interface' => 'Image'),
-        'resize' => array('target' => true, 'width' => true, 'height' => true, 'mode' => false, 'x' => false, 'y' => false, 'degree' => false, 'interface' => 'Image'),
+        'resize' => [
+            'target' => true,
+            'width' => true,
+            'height' => true,
+            'mode' => false,
+            'x' => false,
+            'y' => false,
+            'degree' => false,
+            'interface' => 'Image'
+        ],
         'dim' => array('target' => true, 'interface' => 'Image'),
-
-
         'mkfile' => array('target' => true, 'name' => true, 'mimes' => false, 'interface' => 'Text'),
         'get' => array('target' => true, 'interface' => 'Text'),
         'put' => array('target' => true, 'content' => '', 'mimes' => false, 'interface' => 'Text'),
-
         'archive' => array('targets' => true, 'type' => true, 'mimes' => false, 'interface' => 'Archive'),
         'extract' => array('target' => true, 'mimes' => false, 'interface' => 'Archive'),
-
-        'netmount' => array('protocol' => true, 'host' => true, 'path' => false, 'port' => false, 'user' => true, 'pass' => true, 'alias' => false, 'options' => false, 'interface' => 'Addition')
+        'netmount' => [
+            'protocol' => true,
+            'host' => true,
+            'path' => false,
+            'port' => false,
+            'user' => true,
+            'pass' => true,
+            'alias' => false,
+            'options' => false,
+            'interface' => 'Addition'
+        ]
     );
 
+    /** @var array */
+    private $filenameInRequest = ['target' => true, 'src' => true, 'dst' => true];
     /**
      * @var DriverInterface[]
      */
@@ -72,8 +96,9 @@ class Connector
      * run command
      *
      * @param  string $cmd
-     * @param  array $args
-     * @return array|JsonResponse
+     * @param  array  $args
+     *
+     * @return Response|HttpResponse
      */
     public function run($cmd, array $args)
     {
@@ -83,36 +108,53 @@ class Connector
         $response = new Response();
         $driverId = isset($args['target']) ? $this->getDriverId($args['target']) : '';
         $driverId = !$driverId && isset($args['targets']) ? $this->getDriverId(current($args['targets'])) : $driverId;
-        if ($driverId && isset($this->driverList[$driverId])) {
-            /** @var DriverInterface $driver */
-            $driver = $this->driverList[$driverId];
-            $interface = 'FDevs\ElfinderPhpConnector\Driver\Command\\' . $this->commands[$cmd]['interface'] . 'Interface';
-            if ($driver instanceof $interface) {
-                if ($driver->mount()) {
-                    $this->runCmd($driver, $cmd, $args, $response);
+        $interface = $this->getInterfaceByCmd($cmd);
+        /**
+         * @var string          $name
+         * @var DriverInterface $driver
+         */
+        $data = null;
+        foreach ($this->driverList as $name => $driver) {
+            if (!$driverId || $driverId == $name) {
+                if ($driver instanceof $interface) {
+                    if ($driver->mount()) {
+                        $data = $this->runCmd($driver, $cmd, $args, $response);
+                    }
+                    $driver->unmount();
+                } else {
+                    $this->error(sprintf('command "%s" not supported, please use interface "%s"', $cmd, $interface));
                 }
+                $this->addDisabledCommand($driver);
                 $response->setOptions($driver->getOptions());
-                $driver->unmount();
-            } else {
-                $this->error(sprintf('command "%s" not supported, please use interface "%s"', $cmd, $interface));
             }
-        } else {
-            foreach ($this->driverList as $driver) {
-                if ($driver->mount()) {
-                    $this->runCmd($driver, $cmd, $args, $response);
-                }
-                $driver->unmount();
-            }
+
+            $response->addFile($driver->getRootFileInfo());
+        }
+        if (!empty($args['init'])) {
+            $response->setApi(DriverInterface::VERSION);
         }
 
-        return $response->toArray();
+        return $data ?: $response;
     }
 
+    /**
+     * @param string $cmd
+     * @param array  $args
+     *
+     * @return Response|JsonResponse
+     */
+    public function getResponse($cmd, array $args)
+    {
+        $data = $this->run($cmd, $args);
+
+        return $data instanceof HttpResponse ? $data : new JsonResponse($data->toArray());
+    }
 
     /**
      * set Debug
      *
      * @param boolean $debug
+     *
      * @return $this
      */
     public function setDebug($debug)
@@ -126,6 +168,7 @@ class Connector
      * add Driver
      *
      * @param DriverInterface $driver
+     *
      * @return $this
      */
     public function addDriver(DriverInterface $driver)
@@ -140,6 +183,7 @@ class Connector
      * set All Drivers
      *
      * @param array $drivers
+     *
      * @return $this
      */
     public function setDrivers(array $drivers)
@@ -155,7 +199,8 @@ class Connector
     /**
      * error Handling
      *
-     * @param string $message
+     * @param  string $message
+     *
      * @throws \RuntimeException
      */
     public function error($message)
@@ -172,6 +217,7 @@ class Connector
      * set Logger
      *
      * @param LoggerInterface $logger
+     *
      * @return $this
      */
     public function setLogger(LoggerInterface $logger)
@@ -185,6 +231,7 @@ class Connector
      * get Driver Id from hash target
      *
      * @param  string $targetHash
+     *
      * @return string
      */
     public function getDriverId($targetHash)
@@ -199,17 +246,22 @@ class Connector
     /**
      * run cmd
      *
-     * @param DriverInterface $driver
-     * @param string $cmd
-     * @param array $args
-     * @param Response $response
+     * @param  DriverInterface $driver
+     * @param  string          $cmd
+     * @param  array           $args
+     * @param  Response        $response
+     *
      * @return Response
      */
     private function runCmd(DriverInterface $driver, $cmd, array $args, Response $response)
     {
+        $data = null;
         try {
             if ($driver->isAllowedCommand($cmd)) {
-                call_user_func_array(array($driver, $cmd), $this->getArgs($args, $cmd, $response, $driver->getDriverId()));
+                $data = call_user_func_array(
+                    array($driver, $cmd),
+                    $this->getArgs($args, $cmd, $response, $driver->getDriverId())
+                );
             } else {
                 $this->error(sprintf('command "%s" not allowed', $cmd));
             }
@@ -217,9 +269,50 @@ class Connector
             $this->error($e->getMessage());
         }
 
-        return $response;
+        return $data instanceof HttpResponse ? $data : $response;
     }
 
+    /**
+     * get Interface By Cmd
+     *
+     * @param string $cmd
+     *
+     * @return string
+     */
+    private function getInterfaceByCmd($cmd)
+    {
+        return 'FDevs\ElfinderPhpConnector\Driver\Command\\' . $this->commands[$cmd]['interface'] . 'Interface';
+    }
+
+    /**
+     * add Disabled Command
+     *
+     * @param AbstractDriver $driver
+     *
+     * @return $this
+     */
+    private function addDisabledCommand(AbstractDriver $driver)
+    {
+        foreach ($this->commands as $name => $command) {
+            $interface = $this->getInterfaceByCmd($name);
+            if (!$driver instanceof $interface) {
+                $driver->addDisabledCmd($name);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * get Allowed Arguments
+     *
+     * @param array    $args
+     * @param string   $cmd
+     * @param Response $response
+     * @param string   $driverId
+     *
+     * @return array
+     */
     private function getArgs(array $args, $cmd, $response, $driverId)
     {
         $response = array($response);
@@ -228,19 +321,27 @@ class Connector
         foreach ($allowedArgs as $key => $value) {
             if (isset($args[$key])) {
                 $response[$key] = $args[$key];
-                if ($key == 'target') {
-                    $response[$key] = FileInfo::decode(substr($args[$key], strlen($driverId) + 1));
+                if (isset($this->filenameInRequest[$key])) {
+                    $response[$key] = self::getNameByTarget($args[$key], $driverId);
                 } elseif ($key == 'targets') {
-                    $response[$key] = array_map(function ($val) use ($driverId) {
-                        return FileInfo::decode(substr($val, strlen($driverId) + 1));
-                    }, $args[$key]);
+                    $response[$key] = array_map(
+                        function ($val) use ($driverId) {
+                            return self::getNameByTarget($val, $driverId);
+                        },
+                        $args[$key]
+                    );
                 }
             } elseif ($value) {
-                $this->error(sprintf('parameter "%s" required', $key));
+                $this->error(sprintf('parameter "%s" in cmd "%s" required', $key, $cmd));
             }
         }
 
         return $response;
+    }
+
+    private static function getNameByTarget($target, $driverId)
+    {
+        return FileInfo::decode(substr($target, strlen($driverId) + 1));
     }
 
 }

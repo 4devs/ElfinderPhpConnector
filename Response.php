@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author    Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/24/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -31,7 +31,7 @@ class Response
     /**
      * @var array
      */
-    private $options;
+    private $options = array();
     /**
      * @var array
      */
@@ -67,6 +67,9 @@ class Response
      */
     private $size;
 
+    /** @var string */
+    private $error;
+
     /**
      * get response as array
      *
@@ -88,17 +91,42 @@ class Response
             'uplMaxSize' => $this->getUplMaxSize(),
             'content' => $this->getContent(),
             'size' => $this->getSize(),
+            'error' => $this->getError(),
         );
 
-        return array_filter($data, function ($var) {
-            return !is_null($var);
-        });
+        return array_filter(
+            $data,
+            function ($var) {
+                return !is_null($var);
+            }
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    /**
+     * @param string $error
+     *
+     * @return $this
+     */
+    public function setError($error)
+    {
+        $this->error = $error;
+
+        return $this;
     }
 
     /**
      * set Size
      *
      * @param int $size
+     *
      * @return $this
      */
     public function setSize($size)
@@ -112,6 +140,7 @@ class Response
      * increment Size
      *
      * @param int $size
+     *
      * @return $this
      */
     public function incSize($size)
@@ -135,6 +164,7 @@ class Response
      * set Added
      *
      * @param FileInfo[] $added
+     *
      * @return $this
      */
     public function setAdded(array $added)
@@ -150,18 +180,21 @@ class Response
      * add Added
      *
      * @param FileInfo $added
+     *
      * @return $this
      */
     public function addAdded(FileInfo $added)
     {
         $this->added[$added->getHash()] = $added;
+
         return $this;
     }
 
     /**
      * get Added
      *
-     * @param bool $asArray
+     * @param  bool $asArray
+     *
      * @return array|FileInfo[]
      */
     public function getAdded($asArray = true)
@@ -196,6 +229,7 @@ class Response
      * set Current Working Directory
      *
      * @param FileInfo $cwd
+     *
      * @return $this
      */
     public function setCwd(FileInfo $cwd)
@@ -209,6 +243,7 @@ class Response
      * get Current Working Directory
      *
      * @param  bool $asArray
+     *
      * @return array|FileInfo
      */
     public function getCwd($asArray = false)
@@ -220,6 +255,7 @@ class Response
      * set Debug information, if you specify the corresponding connector option.
      *
      * @param array $debug
+     *
      * @return $this
      */
     public function setDebug(array $debug)
@@ -243,6 +279,7 @@ class Response
      * set Files
      *
      * @param array $files
+     *
      * @return $this
      */
     public function setFiles(array $files)
@@ -259,6 +296,7 @@ class Response
      * append Files
      *
      * @param array $files
+     *
      * @return $this
      */
     public function appendFiles(array $files)
@@ -275,6 +313,7 @@ class Response
      * add File
      *
      * @param FileInfo $file
+     *
      * @return $this
      */
     public function addFile(FileInfo $file)
@@ -286,7 +325,9 @@ class Response
 
     /**
      * get Files
+     *
      * @param  bool $asArray
+     *
      * @return array|FileInfo[]
      */
     public function getFiles($asArray = false)
@@ -305,6 +346,7 @@ class Response
      * set list of file names
      *
      * @param mixed $list
+     *
      * @return $this
      */
     public function setList(array $list)
@@ -328,6 +370,7 @@ class Response
      * set Net Drivers
      *
      * @param array $netDrivers
+     *
      * @return $this
      */
     public function setNetDrivers(array $netDrivers)
@@ -354,7 +397,7 @@ class Response
      */
     public function setOptions(array $options)
     {
-        $this->options = $options;
+        $this->options = array_merge($this->options, $options);
     }
 
     /**
@@ -371,6 +414,7 @@ class Response
      * set Removed Files
      *
      * @param array $removed
+     *
      * @return $this
      */
     public function setRemoved(array $removed)
@@ -401,6 +445,7 @@ class Response
      * set Tree
      *
      * @param FileInfo[] $tree
+     *
      * @return $this
      */
     public function setTree(array $tree)
@@ -416,6 +461,7 @@ class Response
      * add Tree File
      *
      * @param FileInfo $file
+     *
      * @return $this
      */
     public function addTreeFile(FileInfo $file)
@@ -429,6 +475,7 @@ class Response
      * get Tree
      *
      * @param  bool $asArray
+     *
      * @return array|FileInfo[]
      */
     public function getTree($asArray = false)
@@ -447,6 +494,7 @@ class Response
      * set Upload MaxSize
      *
      * @param string $uplMaxSize
+     *
      * @return $this
      */
     public function setUplMaxSize($uplMaxSize)
@@ -454,18 +502,6 @@ class Response
         $this->uplMaxSize = $uplMaxSize;
 
         return $this;
-    }
-
-    private function setArray($name)
-    {
-        $return = array();
-        if ($this->{$name}) {
-            foreach ($this->{$name} as $file) {
-                $return[] = $file->toArray();
-            }
-        }
-
-        return $return;
     }
 
     /**
@@ -482,6 +518,7 @@ class Response
      * set Content
      *
      * @param string $content
+     *
      * @return $this
      */
     public function setContent($content)

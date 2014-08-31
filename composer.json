@@ -1,0 +1,30 @@
+{
+    "name": "fdevs/elfinder-php-connector",
+    "type": "library",
+    "description": "4devs Elfinder php connector",
+    "keywords": ["Elfinder"],
+    "homepage": "https://github.com/4devs/ElfinderPhpConnector",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrey Samusev",
+            "email": "andrey_simfi@list.ru",
+            "homepage": "http://andrey.4devs.io"
+        },
+        {
+            "name": "4devs Community",
+            "homepage": "https://github.com/4devs/ElfinderPhpConnector/contributors"
+        }
+
+    ],
+    "require": {
+        "php": ">=5.4",
+        "symfony/http-foundation": "~2.5"
+    },
+    "require-dev": {},
+    "suggest": {},
+    "autoload": {
+        "psr-0": {"FDevs\\ElfinderPhpConnector": ""}
+    },
+    "target-dir": "FDevs/ElfinderPhpConnector"
+}

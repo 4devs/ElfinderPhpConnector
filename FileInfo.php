@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author    Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/21/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -86,24 +86,25 @@ class FileInfo
      *
      * @param string $name
      * @param string $driverId
-     * @param int $ts
+     * @param int    $ts
      * @param string $parent
      */
-    public function __construct($name, $driverId, $ts, $parent = '')
+    public function __construct($name, $driverId, $ts = 0, $parent = '')
     {
         $this->name = $name;
-        $this->setHash($driverId . '_' . $this->encode($name));
+        $this->setHash(self::createHash($name, $driverId));
         if ($parent) {
-            $this->setHash($driverId . '_' . $this->encode($parent . DIRECTORY_SEPARATOR . $name));
-            $this->setPhash($driverId . '_' . $this->encode($parent));
+            $this->setHash(self::createHash($parent . DIRECTORY_SEPARATOR . $name, $driverId));
+            $this->setPhash(self::createHash($parent, $driverId));
         }
-        $this->ts = $ts;
+        $this->ts = $ts ?: time();
     }
 
     /**
      * set Base Path
      *
      * @param string $path
+     *
      * @return $this
      */
     public function setPath($path)
@@ -127,6 +128,7 @@ class FileInfo
      * set url
      *
      * @param string $url
+     *
      * @return $this
      */
     public function setUrl($url)
@@ -150,6 +152,7 @@ class FileInfo
      * set Symlink target path. For symlinks only.
      *
      * @param string $alias
+     *
      * @return $this
      */
     public function setAlias($alias)
@@ -174,6 +177,7 @@ class FileInfo
      * For images - file dimensions. Optionally
      *
      * @param string $dim
+     *
      * @return $this
      */
     public function setDim($dim)
@@ -199,6 +203,7 @@ class FileInfo
      * Only for directories. Marks if directory has child directories inside it. 0 (or not set) - no, 1 - yes. Do not need to calculate amount.
      *
      * @param int $dirs
+     *
      * @return $this
      */
     public function setDirs($dirs)
@@ -224,6 +229,7 @@ class FileInfo
      * hash of current file/dir path, first symbol must be letter, symbols before _underline_ - volume id, Required.
      *
      * @param string $hash
+     *
      * @return $this
      */
     public function setHash($hash)
@@ -249,6 +255,7 @@ class FileInfo
      * is file locked. If locked that object cannot be deleted and renamed
      *
      * @param int $locked
+     *
      * @return $this
      */
     public function setLocked($locked)
@@ -274,6 +281,7 @@ class FileInfo
      * mime type. Required.
      *
      * @param string $mime
+     *
      * @return $this
      */
     public function setMime($mime)
@@ -299,6 +307,7 @@ class FileInfo
      * name of file/dir. Required
      *
      * @param string $name
+     *
      * @return $this
      */
     public function setName($name)
@@ -324,6 +333,7 @@ class FileInfo
      * hash of parent directory. Required except roots dirs.
      *
      * @param string $phash
+     *
      * @return $this
      */
     public function setPhash($phash)
@@ -348,6 +358,7 @@ class FileInfo
      * set is readable
      *
      * @param int $read
+     *
      * @return $this
      */
     public function setRead($read)
@@ -371,6 +382,7 @@ class FileInfo
      * set file size in bytes
      *
      * @param int $size
+     *
      * @return $this
      */
     public function setSize($size)
@@ -395,6 +407,7 @@ class FileInfo
      * For symlinks only.
      *
      * @param string $thash
+     *
      * @return $this
      */
     public function setThash($thash)
@@ -407,6 +420,7 @@ class FileInfo
     /**
      * get Symlink target hash.
      * For symlinks only.
+     *
      * @return string
      */
     public function getThash()
@@ -419,6 +433,7 @@ class FileInfo
      * Only for images. Thumbnail file name, if file do not have thumbnail yet, but it can be generated than it must have value "1"
      *
      * @param string $tmb
+     *
      * @return $this
      */
     public function setTmb($tmb)
@@ -443,6 +458,7 @@ class FileInfo
      * set file modification time in unix timestamp. Required.
      *
      * @param int $ts
+     *
      * @return $this
      */
     public function setTs($ts)
@@ -466,6 +482,7 @@ class FileInfo
      * set Volume id. For root dir only.
      *
      * @param string $volumeid
+     *
      * @return $this
      */
     public function setVolumeid($volumeid)
@@ -489,6 +506,7 @@ class FileInfo
      * set is writable
      *
      * @param int $write
+     *
      * @return $this
      */
     public function setWrite($write)
@@ -508,10 +526,17 @@ class FileInfo
         return $this->write;
     }
 
+
+    public static function createHash($name, $driverId)
+    {
+        return $driverId . '_' . static::encode($name);
+    }
+
     /**
      * encode
      *
      * @param  string $name
+     *
      * @return string
      */
     public static function encode($name)
@@ -525,6 +550,7 @@ class FileInfo
      * decode
      *
      * @param  string $hash
+     *
      * @return string
      */
     public static function decode($hash)
@@ -569,9 +595,12 @@ class FileInfo
             'url' => $this->url
         );
 
-        return array_filter($data, function ($var) {
-            return $var !== null;
-        });
+        return array_filter(
+            $data,
+            function ($var) {
+                return !is_null($var);
+            }
+        );
     }
 
 }

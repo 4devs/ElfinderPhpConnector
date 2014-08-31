@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Andrey Samusev <Andrey.Samusev@exigenservices.com>
+ * @author Andrey Samusev <andrey_simfi@list.ru>
  * @copyright andrey 10/29/13
  *
  * For the full copyright and license information, please view the LICENSE
@@ -21,7 +21,7 @@ interface ImageInterface
      * Default is 5.
      *
      * @param Response $response
-     * @param string $current
+     * @param string   $current
      */
     public function tmb(Response $response, $current);
 
@@ -29,10 +29,10 @@ interface ImageInterface
      * Change the size of an image.
      *
      * @param Response $response
-     * @param string $current
-     * @param string $target
-     * @param int $width
-     * @param int $height
+     * @param string   $current
+     * @param string   $target
+     * @param int      $width
+     * @param int      $height
      */
     public function resize(Response $response, $current, $target, $width, $height);
 
@@ -40,7 +40,7 @@ interface ImageInterface
      * return image dimensions
      *
      * @param Response $response
-     * @param string $target
+     * @param string   $target
      */
     public function dim(Response $response, $target);
 }
