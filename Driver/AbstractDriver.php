@@ -33,6 +33,11 @@ abstract class AbstractDriver implements DriverInterface
             'create' => array(),
             'extract' => array()
         )
+//        'tmbPath' => '.tmb',
+//        'mimeDetect' => 'internal',
+//        'tmbCrop' => false,
+//        'tmbURL' => '',
+//        'tmbSize' => 48,
     );
 
     /**

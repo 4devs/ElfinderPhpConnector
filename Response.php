@@ -9,6 +9,7 @@
 
 namespace FDevs\ElfinderPhpConnector;
 
+
 class Response
 {
     /**
@@ -70,6 +71,9 @@ class Response
     /** @var string */
     private $error;
 
+    /** @var string */
+    private $dim;
+
     /**
      * get response as array
      *
@@ -92,6 +96,7 @@ class Response
             'content' => $this->getContent(),
             'size' => $this->getSize(),
             'error' => $this->getError(),
+            'dim' => $this->getDim()
         );
 
         return array_filter(
@@ -118,6 +123,26 @@ class Response
     public function setError($error)
     {
         $this->error = $error;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDim()
+    {
+        return $this->dim;
+    }
+
+    /**
+     * @param string $dim
+     *
+     * @return $this
+     */
+    public function setDim($dim)
+    {
+        $this->dim = $dim;
 
         return $this;
     }

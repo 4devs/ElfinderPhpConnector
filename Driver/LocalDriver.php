@@ -10,17 +10,24 @@
 namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\Driver\Command\FileInterface;
+use FDevs\ElfinderPhpConnector\Driver\Command\ImageInterface;
 use FDevs\ElfinderPhpConnector\Driver\Command\TextInterface;
+use FDevs\ElfinderPhpConnector\Exception\CommandNotSupportException;
 use FDevs\ElfinderPhpConnector\Exception\ExistsException;
 use FDevs\ElfinderPhpConnector\Exception\NotFoundException;
 use FDevs\ElfinderPhpConnector\FileInfo;
 use FDevs\ElfinderPhpConnector\Response;
+use FDevs\ElfinderPhpConnector\Util\ImageManagerTrait;
 use FDevs\ElfinderPhpConnector\Util\MimeType;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\FileBag;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
+class LocalDriver extends AbstractDriver implements FileInterface, TextInterface, ImageInterface
 {
+    use ImageManagerTrait;
     /**
      * @var string
      */
@@ -41,6 +48,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
         'locked' => false,
         'host' => '' # full host with sheme example http://localhost
     );
+    private $additionalImages = [];
 
     /**
      * {@inheritDoc}
@@ -121,10 +129,23 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
         /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
         $files = $files->all();
         foreach ($files['upload'] as $file) {
-            $fileInfo = new FileInfo($file->getClientOriginalName(), $this->getDriverId(), time(), $target);
-            $fileInfo->setMime($file->getMimeType());
-            $file->move($target, $file->getClientOriginalName());
+            $fileName = $file->getClientOriginalName();
+            $file->move($target, $fileName);
+            $originalFileName = $target . DIRECTORY_SEPARATOR . $fileName;
+            $fileInfo = $this->getFileInfo($originalFileName);
             $response->addAdded($fileInfo);
+            if ($fileInfo->getTmb()) {
+                $manager = $this->getImageManager();
+                $image = $manager->make($originalFileName);
+                foreach ($this->additionalImages as $additionalImage) {
+                    $fileTmb = $target . DIRECTORY_SEPARATOR . $additionalImage['prefix'] . '_' . $fileName;
+                    $mode = $additionalImage['mode'];
+                    $image->{$mode}($additionalImage['width'], $additionalImage['height']);
+                    $image->save($fileTmb);
+                    $fileInfo = $this->getFileInfo($fileTmb);
+                    $response->addAdded($fileInfo);
+                }
+            }
         }
     }
 
@@ -207,13 +228,23 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     {
         foreach ($targets as $target) {
             if (is_dir($target)) {
-                $files = glob($target . '/*');
-                if (count($files)) {
-                    $this->rm($response, $files);
+                $files = [];
+                $d = dir($target);
+                while (false !== ($entry = $d->read())) {
+                    $file = $target . DIRECTORY_SEPARATOR . $entry;
+                    if ($this->isShowFile($entry, true)) {
+                        $files[] = $file;
+                    }
                 }
+                $d->close();
+                $this->rm($response, $files);
                 rmdir($target);
             } else {
+                $tmb = $this->getThumb($target);
                 unlink($target);
+                if (file_exists($tmb)) {
+                    unlink($tmb);
+                }
             }
             $response->addRemoved(FileInfo::createHash($target, $this->driverId));
         }
@@ -228,6 +259,10 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     {
         $name = pathinfo($target, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . $name;
         rename($target, $name);
+        $tmb = $this->getThumb($target);
+        if (file_exists($tmb)) {
+            unlink($tmb);
+        }
         $response->addRemoved(FileInfo::createHash($target, $this->driverId));
         $response->addAdded($this->getFileInfo($name));
     }
@@ -315,6 +350,129 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function tmb(Response $response, array $targets)
+    {
+        $data = ['images' => [], 'tmb' => false];
+        $manager = $this->getImageManager();
+        if (!empty($this->driverOptions['tmbPath']) && !empty($this->driverOptions['path'])) {
+            foreach ($targets as $target) {
+                $pInfo = pathinfo($target);
+                $tmbPath = $pInfo['dirname'] . DIRECTORY_SEPARATOR . $this->driverOptions['tmbPath'] . DIRECTORY_SEPARATOR;
+                if (!file_exists($tmbPath)) {
+                    mkdir($tmbPath);
+                }
+                $filename = FileInfo::createHash($target, $this->driverId);
+                $tmbFile = $tmbPath . $pInfo['basename'];
+                $image = $manager->make($target);
+                $image->fit($this->driverOptions['tmbSize']);
+                $image->save($tmbFile);
+                $data['images'][$filename] = DIRECTORY_SEPARATOR . $tmbFile;
+            }
+        }
+
+        return new JsonResponse($data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function resize(Response $response, $target, $width, $height, $mode, $x = 0, $y = 0, $degree = 0)
+    {
+        $image = $this->getImageManager()->make($target);
+        switch ($mode) {
+            case 'resize':
+                $image->resize($width, $height);
+                break;
+            case 'crop':
+                $image->crop($width, $height, $x, $y);
+                break;
+            case 'rotate':
+                $image->rotate($degree * -1);
+                break;
+            default:
+                throw new CommandNotSupportException(sprintf('command "%s" not supported', $mode));
+                break;
+        }
+        $image->save($target);
+        $this->open($response, $target);
+    }
+
+    /**
+     * return image dimensions
+     *
+     * @param Response $response
+     * @param string   $target
+     */
+    public function dim(Response $response, $target)
+    {
+        $img = $this->getImageManager()->make($target);
+        $response->setDim($img->getWidth() . 'x' . $img->getHeight());
+    }
+
+    /**
+     * set Additional Images
+     *
+     * @param array $additionalImages
+     *
+     * @return $this
+     */
+    public function setAdditionalImages(array $additionalImages)
+    {
+        $resolver = new OptionsResolver();
+        $this->configureAdditionalImage($resolver);
+        $this->additionalImages = $additionalImages;
+        foreach ($additionalImages as $additionalImage) {
+            $this->addAdditionalImage($additionalImage, $resolver);
+        }
+
+        return $this;
+    }
+
+    /**
+     * add Additional Image
+     *
+     * @param array                    $additionalImage
+     * @param OptionsResolverInterface $resolver
+     *
+     * @return $this
+     */
+    protected function addAdditionalImage(array $additionalImage, OptionsResolverInterface $resolver)
+    {
+        $image = $resolver->resolve($additionalImage);
+        $this->additionalImages[$image['prefix']] = $image;
+
+        return $this;
+    }
+
+    /**
+     * configure Additional Image
+     *
+     * @param OptionsResolverInterface $resolver
+     *
+     * @return $this
+     */
+    protected function configureAdditionalImage(OptionsResolverInterface $resolver)
+    {
+        $resolver
+            ->setRequired(['prefix', 'width', 'height'])
+            ->setOptional(['mode'])
+            ->setDefaults(['mode' => 'fit'])
+            ->addAllowedTypes(
+                [
+                    'prefix' => 'string',
+                    'mode' => 'string',
+                    'width' => 'integer',
+                    'height' => 'integer'
+                ]
+            )
+            ->addAllowedValues(['mode' => ['crop', 'resize', 'fit']]);
+
+        return $this;
+    }
+
+    /**
      * copy dir and all inside
      *
      * @param Response $response
@@ -349,10 +507,10 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
      *
      * @return bool
      */
-    private function isShowFile($name)
+    private function isShowFile($name, $showHidden = false)
     {
         $response = true;
-        if ($name == '.' || $name == '..' || (!$this->driverOptions['showHidden'] && strpos($name, '.') === 0)) {
+        if ($name == '.' || $name == '..' || (!$showHidden && strpos($name, '.') === 0)) {
             $response = false;
         }
 
@@ -362,7 +520,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     /**
      * get file info by full path file name
      *
-     * @param  string $file
+     * @param string $file
      *
      * @return FileInfo
      */
@@ -379,6 +537,12 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
         $fileInfo->setMime($this->getMimeType($file));
         $fileInfo->setLocked($this->driverOptions['locked']);
         $this->setDirs($fileInfo, $file);
+        $tmb = $this->getThumb($file);
+        if (!file_exists($tmb) && in_array($fileInfo->getMime(), ['image/jpeg', 'image/png', 'image/gif'])) {
+            $fileInfo->setTmb(1);
+        } elseif (file_exists($tmb)) {
+            $fileInfo->setTmb(DIRECTORY_SEPARATOR . $tmb);
+        }
 
         return $fileInfo;
     }
@@ -418,7 +582,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     {
         $files = array();
         foreach (glob($dir . '/*', $onlyDir) as $name) {
-            if ($this->isShowFile($name)) {
+            if ($this->isShowFile($name, $this->driverOptions['showHidden'])) {
                 $file = $this->getFileInfo($name);
                 $this->setDirs($file, $name);
                 $files[] = $file;
@@ -426,6 +590,13 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
         }
 
         return $files;
+    }
+
+    private function getThumb($name)
+    {
+        $pInfo = pathinfo($name);
+
+        return $pInfo['dirname'] . DIRECTORY_SEPARATOR . $this->driverOptions['tmbPath'] . DIRECTORY_SEPARATOR . $pInfo['basename'];
     }
 
     /**

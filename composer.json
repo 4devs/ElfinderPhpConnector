@@ -21,8 +21,16 @@
         "php": ">=5.4",
         "symfony/http-foundation": "~2.5"
     },
-    "require-dev": {},
-    "suggest": {},
+    "require-dev": {
+        "intervention/image": "~2.0",
+        "symfony/options-resolver": "~2.5",
+        "fdevs/photatoes": "~1.1"
+    },
+    "suggest": {
+        "intervention/image": "for use LocalDriver",
+        "symfony/options-resolver": "for use LocalDriver",
+        "fdevs/photatoes": "for use PhotatoesDriver"
+    },
     "autoload": {
         "psr-0": {"FDevs\\ElfinderPhpConnector": ""}
     },

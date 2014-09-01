@@ -50,7 +50,7 @@ class Connector
             'target' => true,
             'width' => true,
             'height' => true,
-            'mode' => false,
+            'mode' => true,
             'x' => false,
             'y' => false,
             'degree' => false,
@@ -77,6 +77,10 @@ class Connector
 
     /** @var array */
     private $filenameInRequest = ['target' => true, 'src' => true, 'dst' => true];
+
+    /** @var array */
+    private $defaultValues = ['x' => 0, 'y' => 0];
+
     /**
      * @var DriverInterface[]
      */
@@ -331,6 +335,8 @@ class Connector
                         $args[$key]
                     );
                 }
+            } elseif (isset($this->defaultValues[$key])) {
+                $response[$key] = $this->defaultValues[$key];
             } elseif ($value) {
                 $this->error(sprintf('parameter "%s" in cmd "%s" required', $key, $cmd));
             }
