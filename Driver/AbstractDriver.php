@@ -26,19 +26,11 @@ abstract class AbstractDriver implements DriverInterface
     /**
      * @var array
      */
-    private $options = array(
-        'disabled' => array(),
+    private $options = [
+        'disabled' => [],
         'separator' => DIRECTORY_SEPARATOR,
-        'archivers' => array(
-            'create' => array(),
-            'extract' => array()
-        )
-//        'tmbPath' => '.tmb',
-//        'mimeDetect' => 'internal',
-//        'tmbCrop' => false,
-//        'tmbURL' => '',
-//        'tmbSize' => 48,
-    );
+        'archivers' => ['create' => [], 'extract' => []]
+    ];
 
     /**
      * @var array

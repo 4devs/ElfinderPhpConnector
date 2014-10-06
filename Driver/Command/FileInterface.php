@@ -62,10 +62,10 @@ interface FileInterface
      * Copies or moves a directory / files
      *
      * @param Response $response
-     * @param string   $src     name of the directory from which the files will be copied / moved (the source)
-     * @param string   $dst     name of the directory to which the files will be copied / moved (the destination)
-     * @param array    $targets An array of name for the files to be copied / moved
-     * @param int      $cut     1 if the files are moved, missing if the files are copied
+     * @param string   $src      name of the directory from which the files will be copied / moved (the source)
+     * @param string   $dst      name of the directory to which the files will be copied / moved (the destination)
+     * @param array    $targets  An array of name for the files to be copied / moved
+     * @param int      $cut      1 if the files are moved, missing if the files are copied
      *
      * @throw ExistsException
      */

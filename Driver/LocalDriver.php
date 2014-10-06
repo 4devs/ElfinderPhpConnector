@@ -503,7 +503,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     /**
      * is Show File
      *
-     * @param  string $name
+     * @param string $name
      *
      * @return bool
      */
@@ -550,7 +550,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     /**
      * get Mime Type by File
      *
-     * @param  string $file
+     * @param string $file
      *
      * @return string
      */
@@ -573,8 +573,8 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     /**
      * get Files by dir name
      *
-     * @param  string $dir
-     * @param  int    $onlyDir
+     * @param string $dir
+     * @param int    $onlyDir
      *
      * @return FileInfo[]
      */

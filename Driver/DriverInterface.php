@@ -36,7 +36,7 @@ interface DriverInterface extends BaseInterface
     /**
      * is Allowed Command
      *
-     * @param  string $cmdName
+     * @param string $cmdName
      *
      * @return boolean
      */
@@ -52,7 +52,7 @@ interface DriverInterface extends BaseInterface
     /**
      * set Disabled Command
      *
-     * @param  array $cmd
+     * @param array $cmd
      *
      * @return self
      */
@@ -61,7 +61,7 @@ interface DriverInterface extends BaseInterface
     /**
      * add Disabled Command
      *
-     * @param  string $cmd
+     * @param string $cmd
      *
      * @return self
      */
@@ -70,7 +70,7 @@ interface DriverInterface extends BaseInterface
     /**
      * add custom options
      *
-     * @param  array $options
+     * @param array $options
      *
      * @return mixed
      */

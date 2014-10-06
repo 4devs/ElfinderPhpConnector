@@ -9,7 +9,7 @@
 
 namespace FDevs\ElfinderPhpConnector\Driver\Command;
 
-use Symfony\Component\HttpFoundation\Response;
+use FDevs\ElfinderPhpConnector\Response;
 
 interface ArchiveInterface
 {

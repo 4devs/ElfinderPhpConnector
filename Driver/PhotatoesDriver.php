@@ -67,13 +67,12 @@ class PhotatoesDriver extends AbstractDriver
     {
         $this->getGallery($response, $target);
         $root = $this->getRootFileInfo();
-        if ($init) {
-            $this->getGalleryList($response);
-            $response->setApi(DriverInterface::VERSION);
-            $response->addFile($root);
-        }
+
+        if ($init) {}
         if (!$target || $root->getName() == $target) {
+            $this->getGalleryList($response);
             $response->setCwd($root);
+            $response->addFile($root);
         }
         if ($tree) {
             $this->tree($response, $target);
@@ -195,7 +194,7 @@ class PhotatoesDriver extends AbstractDriver
     /**
      * prepare Gallery
      *
-     * @param  Gallery $gallery
+     * @param Gallery $gallery
      *
      * @return FileInfo
      */

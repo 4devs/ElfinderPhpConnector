@@ -22,8 +22,8 @@ interface ImageInterface
      * Number of thumbnails created at a time is specified in the Connector_Configuration_RU option tmbAtOnce.
      * Default is 5.
      *
-     * @param Response $response
-     * @param array    $target
+     * @param  Response     $response
+     * @param  array        $target
      * @return JsonResponse
      */
     public function tmb(Response $response, array $target);
@@ -35,7 +35,7 @@ interface ImageInterface
      * @param string   $target
      * @param int      $width
      * @param int      $height
-     * @param string   $mode resize|crop|rotate
+     * @param string   $mode     resize|crop|rotate
      * @param int      $x
      * @param int      $y
      * @param int      $degree

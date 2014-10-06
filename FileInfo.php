@@ -511,7 +511,7 @@ class FileInfo
      */
     public function setWrite($write)
     {
-        $this->write = (int)$write;
+        $this->write = (int) $write;
 
         return $this;
     }
@@ -526,7 +526,6 @@ class FileInfo
         return $this->write;
     }
 
-
     public static function createHash($name, $driverId)
     {
         return $driverId . '_' . static::encode($name);
@@ -535,7 +534,7 @@ class FileInfo
     /**
      * encode
      *
-     * @param  string $name
+     * @param string $name
      *
      * @return string
      */
@@ -549,7 +548,7 @@ class FileInfo
     /**
      * decode
      *
-     * @param  string $hash
+     * @param string $hash
      *
      * @return string
      */

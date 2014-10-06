@@ -9,7 +9,6 @@
 
 namespace FDevs\ElfinderPhpConnector;
 
-
 class Response
 {
     /**
@@ -170,7 +169,7 @@ class Response
      */
     public function incSize($size)
     {
-        $this->size = (int)$this->size + $size;
+        $this->size = (int) $this->size + $size;
 
         return $this;
     }
@@ -218,7 +217,7 @@ class Response
     /**
      * get Added
      *
-     * @param  bool $asArray
+     * @param bool $asArray
      *
      * @return array|FileInfo[]
      */
@@ -267,7 +266,7 @@ class Response
     /**
      * get Current Working Directory
      *
-     * @param  bool $asArray
+     * @param bool $asArray
      *
      * @return array|FileInfo
      */
@@ -351,7 +350,7 @@ class Response
     /**
      * get Files
      *
-     * @param  bool $asArray
+     * @param bool $asArray
      *
      * @return array|FileInfo[]
      */
@@ -499,7 +498,7 @@ class Response
     /**
      * get Tree
      *
-     * @param  bool $asArray
+     * @param bool $asArray
      *
      * @return array|FileInfo[]
      */

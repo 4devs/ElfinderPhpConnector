@@ -35,4 +35,4 @@ trait ImageManagerTrait
 
         return $this->imageManager;
     }
-} 
+}

@@ -99,8 +99,8 @@ class Connector
     /**
      * run command
      *
-     * @param  string $cmd
-     * @param  array  $args
+     * @param string $cmd
+     * @param array  $args
      *
      * @return Response|HttpResponse
      */
@@ -163,7 +163,7 @@ class Connector
      */
     public function setDebug($debug)
     {
-        $this->debug = (boolean)$debug;
+        $this->debug = (boolean) $debug;
 
         return $this;
     }
@@ -203,7 +203,7 @@ class Connector
     /**
      * error Handling
      *
-     * @param  string $message
+     * @param string $message
      *
      * @throws \RuntimeException
      */
@@ -234,7 +234,7 @@ class Connector
     /**
      * get Driver Id from hash target
      *
-     * @param  string $targetHash
+     * @param string $targetHash
      *
      * @return string
      */
@@ -250,10 +250,10 @@ class Connector
     /**
      * run cmd
      *
-     * @param  DriverInterface $driver
-     * @param  string          $cmd
-     * @param  array           $args
-     * @param  Response        $response
+     * @param DriverInterface $driver
+     * @param string          $cmd
+     * @param array           $args
+     * @param Response        $response
      *
      * @return Response
      */
