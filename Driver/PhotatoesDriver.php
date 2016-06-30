@@ -27,11 +27,11 @@ class PhotatoesDriver extends AbstractDriver
     /**
      * @var array
      */
-    protected $driverOptions = array(
+    protected $driverOptions = [
         'imagesSize' => ['XL', 'M'],
         'thumbSize' => 'XXXS',
         'rootName' => 'photatoes',
-    );
+    ];
 
     /**
      * @var string
@@ -54,7 +54,7 @@ class PhotatoesDriver extends AbstractDriver
     public function getRootFileInfo()
     {
         $root = new FileInfo($this->driverOptions['rootName'], $this->getDriverId(), time());
-        $root->setVolumeid($this->getDriverId() . '_');
+        $root->setVolumeid($this->getDriverId().'_');
         $root->setDirs(1);
 
         return $root;
@@ -68,7 +68,8 @@ class PhotatoesDriver extends AbstractDriver
         $this->getGallery($response, $target);
         $root = $this->getRootFileInfo();
 
-        if ($init) {}
+        if ($init) {
+        }
         if (!$target || $root->getName() == $target) {
             $this->getGalleryList($response);
             $response->setCwd($root);
@@ -185,7 +186,7 @@ class PhotatoesDriver extends AbstractDriver
                 $this->addImages(
                     $response,
                     $img,
-                    $this->driverOptions['rootName'] . DIRECTORY_SEPARATOR . basename($target)
+                    $this->driverOptions['rootName'].DIRECTORY_SEPARATOR.basename($target)
                 );
             }
         }
@@ -203,8 +204,8 @@ class PhotatoesDriver extends AbstractDriver
         $time = $gallery->getUpdatedAt() ? $gallery->getUpdatedAt()->getTimestamp() : time();
         $file = new FileInfo($gallery->getName(), $this->driverId, $time, $this->driverOptions['rootName']);
         $file->setHash(
-            $this->getDriverId() . '_' . FileInfo::encode(
-                $this->driverOptions['rootName'] . DIRECTORY_SEPARATOR . $gallery->getId()
+            $this->getDriverId().'_'.FileInfo::encode(
+                $this->driverOptions['rootName'].DIRECTORY_SEPARATOR.$gallery->getId()
             )
         );
 
@@ -237,20 +238,19 @@ class PhotatoesDriver extends AbstractDriver
      */
     private function addImage(Response $response, Image $image, $galleryId, $imageSize)
     {
-        if (!$image->get($imageSize)) {
-            throw new NotFoundException(sprintf('file with size "%s" not found', $imageSize));
+        if ($image->get($imageSize)) {
+            $href = $image->get($imageSize)->getHref();
+            $file = new FileInfo(
+                $image->getTitle().'('.$imageSize.')',
+                $this->getDriverId(),
+                $image->getUpdateAt()->getTimestamp(),
+                $galleryId
+            );
+            $file->setMime('image/jpeg');
+            $file->setTmb($image->get($this->driverOptions['thumbSize'])->getHref());
+            $file->setUrl($href);
+            $file->setPath($href);
+            $response->addFile($file);
         }
-        $href = $image->get($imageSize)->getHref();
-        $file = new FileInfo(
-            $image->getTitle() . '(' . $imageSize . ')',
-            $this->getDriverId(),
-            $image->getUpdateAt()->getTimestamp(),
-            $galleryId
-        );
-        $file->setMime('image/jpeg');
-        $file->setTmb($image->get($this->driverOptions['thumbSize'])->getHref());
-        $file->setUrl($href);
-        $file->setPath($href);
-        $response->addFile($file);
     }
 }
