@@ -6,19 +6,16 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector\Driver;
 
-use FDevs\ElfinderPhpConnector\Exception\NotFoundException;
 use FDevs\ElfinderPhpConnector\FileInfo;
 use FDevs\ElfinderPhpConnector\Response;
 use FDevs\Photatoes\Gallery;
 use FDevs\Photatoes\Image;
-use  FDevs\Photatoes\Manager;
+use FDevs\Photatoes\Manager;
 
 class PhotatoesDriver extends AbstractDriver
 {
-
     /**
      * @var \FDevs\Photatoes\Manager
      */
@@ -39,7 +36,7 @@ class PhotatoesDriver extends AbstractDriver
     protected $driverId = 'p1';
 
     /**
-     * init
+     * init.
      *
      * @param Manager $manager
      */
@@ -49,7 +46,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getRootFileInfo()
     {
@@ -61,7 +58,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function open(Response $response, $target = '', $tree = false, $init = false)
     {
@@ -93,7 +90,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * Return folder's subfolders on required (in connector options) deep
+     * Return folder's subfolders on required (in connector options) deep.
      *
      * @param Response $response
      * @param string   $target
@@ -104,7 +101,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * Return all parents folders and its subfolders on required (in connector options) deep
+     * Return all parents folders and its subfolders on required (in connector options) deep.
      *
      * @param Response $response
      * @param string   $target
@@ -126,7 +123,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * search for files
+     * search for files.
      *
      * @param Response $response
      * @param string   $q
@@ -137,7 +134,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function upload(Response $response, $target, $files)
     {
@@ -145,7 +142,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * return size for selected files or total folder(s) size
+     * return size for selected files or total folder(s) size.
      *
      * @param Response $response
      * @param array    $targets
@@ -156,7 +153,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * get Gallery list
+     * get Gallery list.
      *
      * @param Response $response
      */
@@ -164,7 +161,7 @@ class PhotatoesDriver extends AbstractDriver
     {
         $list = $this->manager->getGalleryList();
         foreach ($list as $gallery) {
-            /** @var \FDevs\Photatoes\Gallery $gallery */
+            /* @var \FDevs\Photatoes\Gallery $gallery */
             $file = $this->prepareGallery($gallery);
             $response->addFile($file);
             $response->addTreeFile($file);
@@ -172,7 +169,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * get Gallery
+     * get Gallery.
      *
      * @param Response $response
      * @param string   $target
@@ -193,7 +190,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * prepare Gallery
+     * prepare Gallery.
      *
      * @param Gallery $gallery
      *
@@ -229,7 +226,7 @@ class PhotatoesDriver extends AbstractDriver
     }
 
     /**
-     * add Image
+     * add Image.
      *
      * @param Response $response
      * @param Image    $image

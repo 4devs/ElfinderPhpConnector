@@ -6,7 +6,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\Driver\Command\FileInterface;
@@ -46,12 +45,12 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
         'uploadOverwrite' => true,
         'showHidden' => false,
         'locked' => false,
-        'host' => '' # full host with sheme example http://localhost
+        'host' => '', # full host with sheme example http://localhost
     );
     private $additionalImages = [];
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function mount()
     {
@@ -59,16 +58,16 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function open(Response $response, $target = '', $tree = false, $init = false)
     {
         $target = $target ?: $this->driverOptions['path'];
 
-        $url = $this->driverOptions['host'] . DIRECTORY_SEPARATOR . $this->driverOptions['path'] . DIRECTORY_SEPARATOR;
+        $url = $this->driverOptions['host'].DIRECTORY_SEPARATOR.$this->driverOptions['path'].DIRECTORY_SEPARATOR;
         $this->addOption('path', $target);
         $this->addOption('url', $url);
-        $this->addOption('tmbURL', $url . $this->driverOptions['tmbPath'] . DIRECTORY_SEPARATOR);
+        $this->addOption('tmbURL', $url.$this->driverOptions['tmbPath'].DIRECTORY_SEPARATOR);
 
         $dir = $this->getFileInfo($target);
         $response->setCwd($dir);
@@ -87,19 +86,19 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getRootFileInfo()
     {
         $root = $this->getFileInfo($this->driverOptions['path']);
-        $root->setVolumeid($this->getDriverId() . '_');
+        $root->setVolumeid($this->getDriverId().'_');
         $root->setPhash(null);
 
         return $root;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function tree(Response $response, $target)
     {
@@ -109,7 +108,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function parents(Response $response, $target)
     {
@@ -119,26 +118,26 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function upload(Response $response, $target, $files)
     {
         if (is_array($files)) {
             $files = new FileBag($files);
         }
-        /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
+        /* @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
         $files = $files->all();
         foreach ($files['upload'] as $file) {
             $fileName = $file->getClientOriginalName();
             $file->move($target, $fileName);
-            $originalFileName = $target . DIRECTORY_SEPARATOR . $fileName;
+            $originalFileName = $target.DIRECTORY_SEPARATOR.$fileName;
             $fileInfo = $this->getFileInfo($originalFileName);
             $response->addAdded($fileInfo);
             if ($fileInfo->getTmb()) {
                 $manager = $this->getImageManager();
                 $image = $manager->make($originalFileName);
                 foreach ($this->additionalImages as $additionalImage) {
-                    $fileTmb = $target . DIRECTORY_SEPARATOR . $additionalImage['prefix'] . '_' . $fileName;
+                    $fileTmb = $target.DIRECTORY_SEPARATOR.$additionalImage['prefix'].'_'.$fileName;
                     $mode = $additionalImage['mode'];
                     $image->{$mode}($additionalImage['width'], $additionalImage['height']);
                     $image->save($fileTmb);
@@ -150,7 +149,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function file(Response $response, $target, $download = false)
     {
@@ -158,12 +157,12 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function ls(Response $response, $target)
     {
         $files = array_filter(
-            glob($target . '/*', GLOB_MARK),
+            glob($target.'/*', GLOB_MARK),
             function ($val) {
                 return substr($val, -1, 1) != DIRECTORY_SEPARATOR;
             }
@@ -178,30 +177,29 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function search(Response $response, $q)
     {
         $pattern = '/*';
         do {
-            $files = glob($this->driverOptions['path'] . $pattern . $q . '*');
+            $files = glob($this->driverOptions['path'].$pattern.$q.'*');
             foreach ($files as $file) {
                 $response->addFile($this->getFileInfo($file));
             }
-            $pattern = $pattern . '/*';
-
-        } while (glob($this->driverOptions['path'] . $pattern, GLOB_ONLYDIR));
+            $pattern = $pattern.'/*';
+        } while (glob($this->driverOptions['path'].$pattern, GLOB_ONLYDIR));
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function size(Response $response, array $targets)
     {
         $response->incSize(0);
         foreach ($targets as $target) {
             if (is_dir($target)) {
-                $this->size($response, glob($target . DIRECTORY_SEPARATOR . '*'));
+                $this->size($response, glob($target.DIRECTORY_SEPARATOR.'*'));
             } else {
                 $response->incSize(filesize($target));
             }
@@ -209,11 +207,11 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function mkdir(Response $response, $target, $name)
     {
-        $dirName = $target . DIRECTORY_SEPARATOR . $name;
+        $dirName = $target.DIRECTORY_SEPARATOR.$name;
         @mkdir($dirName);
         $dir = $this->getFileInfo($dirName);
         $response->addAdded($dir);
@@ -222,7 +220,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function rm(Response $response, array $targets)
     {
@@ -231,7 +229,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
                 $files = [];
                 $d = dir($target);
                 while (false !== ($entry = $d->read())) {
-                    $file = $target . DIRECTORY_SEPARATOR . $entry;
+                    $file = $target.DIRECTORY_SEPARATOR.$entry;
                     if ($this->isShowFile($entry, true)) {
                         $files[] = $file;
                     }
@@ -253,11 +251,11 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function rename(Response $response, $target, $name)
     {
-        $name = pathinfo($target, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . $name;
+        $name = pathinfo($target, PATHINFO_DIRNAME).DIRECTORY_SEPARATOR.$name;
         rename($target, $name);
         $tmb = $this->getThumb($target);
         if (file_exists($tmb)) {
@@ -268,15 +266,15 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function duplicate(Response $response, array $targets)
     {
         foreach ($targets as $target) {
             $pathInfo = pathinfo($target);
             $isDir = is_dir($target);
-            for ($i = 0; $i < 1000000; $i++) {
-                $newName = $isDir ? $target . '_' . $i : $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $pathInfo['filename'] . '_' . $i . '.' . $pathInfo['extension'];
+            for ($i = 0; $i < 1000000; ++$i) {
+                $newName = $isDir ? $target.'_'.$i : $pathInfo['dirname'].DIRECTORY_SEPARATOR.$pathInfo['filename'].'_'.$i.'.'.$pathInfo['extension'];
                 if (!file_exists($newName)) {
                     if ($isDir) {
                         $this->copyDir($response, $target, $target, $newName);
@@ -291,7 +289,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function paste(Response $response, $src, $dst, array $targets, $cut = 0)
     {
@@ -299,9 +297,9 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
             if (is_dir($target)) {
                 $this->copyDir($response, $target, $dst);
             } else {
-                $fileName = $dst . DIRECTORY_SEPARATOR . pathinfo($target, PATHINFO_BASENAME);
+                $fileName = $dst.DIRECTORY_SEPARATOR.pathinfo($target, PATHINFO_BASENAME);
                 copy($target, $fileName);
-                $response->addAdded($this->getFileInfo($dst . DIRECTORY_SEPARATOR . $fileName));
+                $response->addAdded($this->getFileInfo($dst.DIRECTORY_SEPARATOR.$fileName));
             }
         }
         if ($cut) {
@@ -310,7 +308,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function info(Response $response, array $targets)
     {
@@ -320,7 +318,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function get(Response $response, $target)
     {
@@ -328,7 +326,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function put(Response $response, $target, $content = '')
     {
@@ -338,11 +336,11 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function mkfile(Response $response, $target, $name)
     {
-        $fullName = $target . DIRECTORY_SEPARATOR . $name;
+        $fullName = $target.DIRECTORY_SEPARATOR.$name;
         $fp = fopen($fullName, 'w');
         fclose($fp);
         $file = $this->getFileInfo($fullName);
@@ -350,7 +348,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function tmb(Response $response, array $targets)
     {
@@ -359,16 +357,16 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
         if (!empty($this->driverOptions['tmbPath']) && !empty($this->driverOptions['path'])) {
             foreach ($targets as $target) {
                 $pInfo = pathinfo($target);
-                $tmbPath = $pInfo['dirname'] . DIRECTORY_SEPARATOR . $this->driverOptions['tmbPath'] . DIRECTORY_SEPARATOR;
+                $tmbPath = $pInfo['dirname'].DIRECTORY_SEPARATOR.$this->driverOptions['tmbPath'].DIRECTORY_SEPARATOR;
                 if (!file_exists($tmbPath)) {
                     mkdir($tmbPath);
                 }
                 $filename = FileInfo::createHash($target, $this->driverId);
-                $tmbFile = $tmbPath . $pInfo['basename'];
+                $tmbFile = $tmbPath.$pInfo['basename'];
                 $image = $manager->make($target);
                 $image->fit($this->driverOptions['tmbSize']);
                 $image->save($tmbFile);
-                $data['images'][$filename] = DIRECTORY_SEPARATOR . $tmbFile;
+                $data['images'][$filename] = DIRECTORY_SEPARATOR.$tmbFile;
             }
         }
 
@@ -376,7 +374,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function resize(Response $response, $target, $width, $height, $mode, $x = 0, $y = 0, $degree = 0)
     {
@@ -400,7 +398,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * return image dimensions
+     * return image dimensions.
      *
      * @param Response $response
      * @param string   $target
@@ -408,11 +406,11 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     public function dim(Response $response, $target)
     {
         $img = $this->getImageManager()->make($target);
-        $response->setDim($img->getWidth() . 'x' . $img->getHeight());
+        $response->setDim($img->getWidth().'x'.$img->getHeight());
     }
 
     /**
-     * set Additional Images
+     * set Additional Images.
      *
      * @param array $additionalImages
      *
@@ -431,7 +429,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * add Additional Image
+     * add Additional Image.
      *
      * @param array                    $additionalImage
      * @param OptionsResolverInterface $resolver
@@ -447,7 +445,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * configure Additional Image
+     * configure Additional Image.
      *
      * @param OptionsResolverInterface $resolver
      *
@@ -464,7 +462,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
                     'prefix' => 'string',
                     'mode' => 'string',
                     'width' => 'integer',
-                    'height' => 'integer'
+                    'height' => 'integer',
                 ]
             )
             ->addAllowedValues(['mode' => ['crop', 'resize', 'fit']]);
@@ -473,7 +471,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * copy dir and all inside
+     * copy dir and all inside.
      *
      * @param Response $response
      * @param string   $target
@@ -483,17 +481,17 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     private function copyDir(Response $response, $target, $dst, $newFolder = '')
     {
         $folder = trim(strrchr($target, DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR);
-        $newFolder = $newFolder ?: $dst . DIRECTORY_SEPARATOR . $folder;
+        $newFolder = $newFolder ?: $dst.DIRECTORY_SEPARATOR.$folder;
         if (file_exists($newFolder)) {
             throw new ExistsException(sprintf('folder "%s" exists', $newFolder));
         }
         mkdir($newFolder);
         $response->addAdded($this->getFileInfo($newFolder));
-        foreach (glob($target . '/*') as $name) {
+        foreach (glob($target.'/*') as $name) {
             if (is_dir($name)) {
                 $this->copyDir($response, $name, $newFolder);
             } else {
-                $filename = $newFolder . DIRECTORY_SEPARATOR . pathinfo($name, PATHINFO_BASENAME);
+                $filename = $newFolder.DIRECTORY_SEPARATOR.pathinfo($name, PATHINFO_BASENAME);
                 copy($name, $filename);
                 $response->addAdded($this->getFileInfo($filename));
             }
@@ -501,7 +499,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * is Show File
+     * is Show File.
      *
      * @param string $name
      *
@@ -518,7 +516,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * get file info by full path file name
+     * get file info by full path file name.
      *
      * @param string $file
      *
@@ -541,14 +539,14 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
         if (!file_exists($tmb) && in_array($fileInfo->getMime(), ['image/jpeg', 'image/png', 'image/gif'])) {
             $fileInfo->setTmb(1);
         } elseif (file_exists($tmb)) {
-            $fileInfo->setTmb(DIRECTORY_SEPARATOR . $tmb);
+            $fileInfo->setTmb(DIRECTORY_SEPARATOR.$tmb);
         }
 
         return $fileInfo;
     }
 
     /**
-     * get Mime Type by File
+     * get Mime Type by File.
      *
      * @param string $file
      *
@@ -571,7 +569,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     }
 
     /**
-     * get Files by dir name
+     * get Files by dir name.
      *
      * @param string $dir
      * @param int    $onlyDir
@@ -581,7 +579,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     private function scanDir($dir, $onlyDir = 0)
     {
         $files = array();
-        foreach (glob($dir . '/*', $onlyDir) as $name) {
+        foreach (glob($dir.'/*', $onlyDir) as $name) {
             if ($this->isShowFile($name, $this->driverOptions['showHidden'])) {
                 $file = $this->getFileInfo($name);
                 $this->setDirs($file, $name);
@@ -596,11 +594,11 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     {
         $pInfo = pathinfo($name);
 
-        return $pInfo['dirname'] . DIRECTORY_SEPARATOR . $this->driverOptions['tmbPath'] . DIRECTORY_SEPARATOR . $pInfo['basename'];
+        return $pInfo['dirname'].DIRECTORY_SEPARATOR.$this->driverOptions['tmbPath'].DIRECTORY_SEPARATOR.$pInfo['basename'];
     }
 
     /**
-     * set dit $file if it has folders
+     * set dit $file if it has folders.
      *
      * @param FileInfo $file
      * @param string   $fulName
@@ -608,7 +606,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     private function setDirs(FileInfo $file, $fulName)
     {
         if ($file->isDir()) {
-            if (count(glob($fulName . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR))) {
+            if (count(glob($fulName.DIRECTORY_SEPARATOR.'*', GLOB_ONLYDIR))) {
                 $file->setDirs(1);
             }
         }

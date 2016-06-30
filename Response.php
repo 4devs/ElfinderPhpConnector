@@ -6,7 +6,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector;
 
 class Response
@@ -74,7 +73,7 @@ class Response
     private $dim;
 
     /**
-     * get response as array
+     * get response as array.
      *
      * @return array
      */
@@ -95,7 +94,7 @@ class Response
             'content' => $this->getContent(),
             'size' => $this->getSize(),
             'error' => $this->getError(),
-            'dim' => $this->getDim()
+            'dim' => $this->getDim(),
         );
 
         return array_filter(
@@ -147,7 +146,7 @@ class Response
     }
 
     /**
-     * set Size
+     * set Size.
      *
      * @param int $size
      *
@@ -161,7 +160,7 @@ class Response
     }
 
     /**
-     * increment Size
+     * increment Size.
      *
      * @param int $size
      *
@@ -175,7 +174,7 @@ class Response
     }
 
     /**
-     * get Size
+     * get Size.
      *
      * @return int
      */
@@ -185,7 +184,7 @@ class Response
     }
 
     /**
-     * set Added
+     * set Added.
      *
      * @param FileInfo[] $added
      *
@@ -201,7 +200,7 @@ class Response
     }
 
     /**
-     * add Added
+     * add Added.
      *
      * @param FileInfo $added
      *
@@ -215,7 +214,7 @@ class Response
     }
 
     /**
-     * get Added
+     * get Added.
      *
      * @param bool $asArray
      *
@@ -250,7 +249,7 @@ class Response
     }
 
     /**
-     * set Current Working Directory
+     * set Current Working Directory.
      *
      * @param FileInfo $cwd
      *
@@ -264,7 +263,7 @@ class Response
     }
 
     /**
-     * get Current Working Directory
+     * get Current Working Directory.
      *
      * @param bool $asArray
      *
@@ -300,7 +299,7 @@ class Response
     }
 
     /**
-     * set Files
+     * set Files.
      *
      * @param array $files
      *
@@ -317,7 +316,7 @@ class Response
     }
 
     /**
-     * append Files
+     * append Files.
      *
      * @param array $files
      *
@@ -330,11 +329,10 @@ class Response
         }
 
         return $this;
-
     }
 
     /**
-     * add File
+     * add File.
      *
      * @param FileInfo $file
      *
@@ -348,7 +346,7 @@ class Response
     }
 
     /**
-     * get Files
+     * get Files.
      *
      * @param bool $asArray
      *
@@ -367,7 +365,7 @@ class Response
     }
 
     /**
-     * set list of file names
+     * set list of file names.
      *
      * @param mixed $list
      *
@@ -381,7 +379,7 @@ class Response
     }
 
     /**
-     * get List
+     * get List.
      *
      * @return array
      */
@@ -391,7 +389,7 @@ class Response
     }
 
     /**
-     * set Net Drivers
+     * set Net Drivers.
      *
      * @param array $netDrivers
      *
@@ -405,7 +403,7 @@ class Response
     }
 
     /**
-     * get Net Drivers
+     * get Net Drivers.
      *
      * @return array
      */
@@ -415,7 +413,7 @@ class Response
     }
 
     /**
-     * set Options
+     * set Options.
      *
      * @param array $options
      */
@@ -425,7 +423,7 @@ class Response
     }
 
     /**
-     * get Options
+     * get Options.
      *
      * @return mixed
      */
@@ -435,7 +433,7 @@ class Response
     }
 
     /**
-     * set Removed Files
+     * set Removed Files.
      *
      * @param array $removed
      *
@@ -466,7 +464,7 @@ class Response
     }
 
     /**
-     * set Tree
+     * set Tree.
      *
      * @param FileInfo[] $tree
      *
@@ -482,7 +480,7 @@ class Response
     }
 
     /**
-     * add Tree File
+     * add Tree File.
      *
      * @param FileInfo $file
      *
@@ -496,7 +494,7 @@ class Response
     }
 
     /**
-     * get Tree
+     * get Tree.
      *
      * @param bool $asArray
      *
@@ -515,7 +513,7 @@ class Response
     }
 
     /**
-     * set Upload MaxSize
+     * set Upload MaxSize.
      *
      * @param string $uplMaxSize
      *
@@ -529,7 +527,7 @@ class Response
     }
 
     /**
-     * get Upload MaxSize
+     * get Upload MaxSize.
      *
      * @return string
      */
@@ -539,7 +537,7 @@ class Response
     }
 
     /**
-     * set Content
+     * set Content.
      *
      * @param string $content
      *
@@ -553,7 +551,7 @@ class Response
     }
 
     /**
-     * get Content
+     * get Content.
      *
      * @return string
      */
@@ -561,5 +559,4 @@ class Response
     {
         return $this->content;
     }
-
 }

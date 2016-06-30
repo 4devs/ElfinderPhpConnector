@@ -1,4 +1,5 @@
 <?php
+
 namespace FDevs\ElfinderPhpConnector\Util;
 
 use Intervention\Image\ImageManager;

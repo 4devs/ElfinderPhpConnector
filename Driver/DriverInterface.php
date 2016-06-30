@@ -6,7 +6,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\Connector;
@@ -18,7 +17,7 @@ interface DriverInterface extends BaseInterface
     const PHASH = 'Lw';
 
     /**
-     * set Driver Options
+     * set Driver Options.
      *
      * @param array $options
      *
@@ -27,30 +26,30 @@ interface DriverInterface extends BaseInterface
     public function setDriverOptions(array $options);
 
     /**
-     * get Root File Info
+     * get Root File Info.
      *
      * @return FileInfo
      */
     public function getRootFileInfo();
 
     /**
-     * is Allowed Command
+     * is Allowed Command.
      *
      * @param string $cmdName
      *
-     * @return boolean
+     * @return bool
      */
     public function isAllowedCommand($cmdName);
 
     /**
-     * get Further information about the folder and its volume
+     * get Further information about the folder and its volume.
      *
      * @return array
      */
     public function getOptions();
 
     /**
-     * set Disabled Command
+     * set Disabled Command.
      *
      * @param array $cmd
      *
@@ -59,7 +58,7 @@ interface DriverInterface extends BaseInterface
     public function setDisabledCmd(array $cmd);
 
     /**
-     * add Disabled Command
+     * add Disabled Command.
      *
      * @param string $cmd
      *
@@ -68,7 +67,7 @@ interface DriverInterface extends BaseInterface
     public function addDisabledCmd($cmd);
 
     /**
-     * add custom options
+     * add custom options.
      *
      * @param array $options
      *
@@ -77,7 +76,7 @@ interface DriverInterface extends BaseInterface
     public function addOptions(array $options);
 
     /**
-     * set Connector
+     * set Connector.
      *
      * @param Connector $connector
      *
@@ -86,7 +85,7 @@ interface DriverInterface extends BaseInterface
     public function setConnector(Connector $connector);
 
     /**
-     * set Driver Id
+     * set Driver Id.
      *
      * @param string $driverId
      *
@@ -95,24 +94,24 @@ interface DriverInterface extends BaseInterface
     public function setDriverId($driverId);
 
     /**
-     * get Driver Id
+     * get Driver Id.
      *
      * @return string
      */
     public function getDriverId();
 
     /**
-     * mount Driver
+     * mount Driver.
      *
-     * @return boolean
+     * @return bool
      */
     public function mount();
 
     /**
      * unmount Driver
-     * run all command after run all command
+     * run all command after run all command.
      *
-     * @return boolean
+     * @return bool
      */
     public function unmount();
 }
