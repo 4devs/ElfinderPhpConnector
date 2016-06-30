@@ -32,7 +32,6 @@
         "fdevs/photatoes": "for use PhotatoesDriver"
     },
     "autoload": {
-        "psr-0": {"FDevs\\ElfinderPhpConnector": ""}
-    },
-    "target-dir": "FDevs/ElfinderPhpConnector"
+        "psr-4": {"FDevs\\ElfinderPhpConnector\\": ""}
+    }
 }
