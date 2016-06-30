@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class LocalDriver extends AbstractDriver implements FileInterface, TextInterface, ImageInterface
 {
@@ -432,11 +431,11 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
      * add Additional Image.
      *
      * @param array                    $additionalImage
-     * @param OptionsResolverInterface $resolver
+     * @param OptionsResolver $resolver
      *
      * @return $this
      */
-    protected function addAdditionalImage(array $additionalImage, OptionsResolverInterface $resolver)
+    protected function addAdditionalImage(array $additionalImage, OptionsResolver $resolver)
     {
         $image = $resolver->resolve($additionalImage);
         $this->additionalImages[$image['prefix']] = $image;
@@ -447,11 +446,11 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     /**
      * configure Additional Image.
      *
-     * @param OptionsResolverInterface $resolver
+     * @param OptionsResolver $resolver
      *
      * @return $this
      */
-    protected function configureAdditionalImage(OptionsResolverInterface $resolver)
+    protected function configureAdditionalImage(OptionsResolver $resolver)
     {
         $resolver
             ->setRequired(['prefix', 'width', 'height'])
