@@ -6,7 +6,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector\Driver\Command;
 
 use FDevs\ElfinderPhpConnector\Response;
@@ -41,7 +40,7 @@ interface FileInterface
     public function rm(Response $response, array $targets);
 
     /**
-     * Renaming a directory/file
+     * Renaming a directory/file.
      *
      * @param Response $response
      * @param string   $target
@@ -51,7 +50,7 @@ interface FileInterface
 
     /**
      * Creates a copy of the directory / file.
-     * Copy name is generated as follows: basedir_name_filecopy+serialnumber.extension (if any)
+     * Copy name is generated as follows: basedir_name_filecopy+serialnumber.extension (if any).
      *
      * @param Response $response
      * @param array    $targets
@@ -59,7 +58,7 @@ interface FileInterface
     public function duplicate(Response $response, array $targets);
 
     /**
-     * Copies or moves a directory / files
+     * Copies or moves a directory / files.
      *
      * @param Response $response
      * @param string   $src      name of the directory from which the files will be copied / moved (the source)
@@ -72,7 +71,7 @@ interface FileInterface
     public function paste(Response $response, $src, $dst, array $targets, $cut = 0);
 
     /**
-     * return info for files. (used by client "places" ui)
+     * return info for files. (used by client "places" ui).
      *
      * @param Response $response
      * @param array    $targets

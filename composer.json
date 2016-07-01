@@ -19,11 +19,12 @@
     ],
     "require": {
         "php": ">=5.4",
-        "symfony/http-foundation": "~2.5"
+        "symfony/http-foundation": "~2.5|~3.0",
+        "psr/log": "~1.0"
     },
     "require-dev": {
         "intervention/image": "~2.0",
-        "symfony/options-resolver": "~2.5",
+        "symfony/options-resolver": "~2.5|~3.0",
         "fdevs/photatoes": "~1.1"
     },
     "suggest": {
@@ -32,7 +33,6 @@
         "fdevs/photatoes": "for use PhotatoesDriver"
     },
     "autoload": {
-        "psr-0": {"FDevs\\ElfinderPhpConnector": ""}
-    },
-    "target-dir": "FDevs/ElfinderPhpConnector"
+        "psr-4": {"FDevs\\ElfinderPhpConnector\\": ""}
+    }
 }

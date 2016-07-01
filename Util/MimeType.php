@@ -6,12 +6,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector\Util;
 
 class MimeType
 {
-
     /**
      * @var array
      */
@@ -137,13 +135,14 @@ class MimeType
         'mkv' => 'video/x-matroska',
         'webm' => 'video/webm',
         'ogv' => 'video/ogg',
-        'ogm' => 'video/ogg'
+        'ogm' => 'video/ogg',
     );
 
     /**
-     * get Type By Extensions
+     * get Type By Extensions.
      *
-     * @param  string $ext
+     * @param string $ext
+     *
      * @return string
      */
     public static function getTypeByExt($ext)

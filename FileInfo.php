@@ -6,7 +6,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector;
 
 class FileInfo
@@ -29,27 +28,27 @@ class FileInfo
      */
     private $mime = self::DIRECTORY_MIME_TYPE;
     /**
-     * @var integer
+     * @var int
      */
     private $ts;
     /**
-     * @var integer
+     * @var int
      */
     private $size;
     /**
-     * @var integer
+     * @var int
      */
     private $dirs = 0;
     /**
-     * @var integer
+     * @var int
      */
     private $read = 1;
     /**
-     * @var integer
+     * @var int
      */
     private $write = 0;
     /**
-     * @var integer
+     * @var int
      */
     private $locked = 0;
     /**
@@ -82,7 +81,7 @@ class FileInfo
     private $path;
 
     /**
-     * init
+     * init.
      *
      * @param string $name
      * @param string $driverId
@@ -94,14 +93,14 @@ class FileInfo
         $this->name = $name;
         $this->setHash(self::createHash($name, $driverId));
         if ($parent) {
-            $this->setHash(self::createHash($parent . DIRECTORY_SEPARATOR . $name, $driverId));
+            $this->setHash(self::createHash($parent.DIRECTORY_SEPARATOR.$name, $driverId));
             $this->setPhash(self::createHash($parent, $driverId));
         }
         $this->ts = $ts ?: time();
     }
 
     /**
-     * set Base Path
+     * set Base Path.
      *
      * @param string $path
      *
@@ -115,7 +114,7 @@ class FileInfo
     }
 
     /**
-     * get Base Path
+     * get Base Path.
      *
      * @return string
      */
@@ -125,7 +124,7 @@ class FileInfo
     }
 
     /**
-     * set url
+     * set url.
      *
      * @param string $url
      *
@@ -139,7 +138,7 @@ class FileInfo
     }
 
     /**
-     * get url
+     * get url.
      *
      * @return string
      */
@@ -174,7 +173,7 @@ class FileInfo
 
     /**
      * set dimensions
-     * For images - file dimensions. Optionally
+     * For images - file dimensions. Optionally.
      *
      * @param string $dim
      *
@@ -189,7 +188,7 @@ class FileInfo
 
     /**
      * get dimensions
-     * For images - file dimensions. Optionally
+     * For images - file dimensions. Optionally.
      *
      * @return string
      */
@@ -252,7 +251,7 @@ class FileInfo
 
     /**
      * set Locked
-     * is file locked. If locked that object cannot be deleted and renamed
+     * is file locked. If locked that object cannot be deleted and renamed.
      *
      * @param int $locked
      *
@@ -267,7 +266,7 @@ class FileInfo
 
     /**
      * get Locked
-     * is file locked. If locked that object cannot be deleted and renamed
+     * is file locked. If locked that object cannot be deleted and renamed.
      *
      * @return int
      */
@@ -304,7 +303,7 @@ class FileInfo
 
     /**
      * set Name
-     * name of file/dir. Required
+     * name of file/dir. Required.
      *
      * @param string $name
      *
@@ -319,7 +318,7 @@ class FileInfo
 
     /**
      * get Name
-     * name of file/dir. Required
+     * name of file/dir. Required.
      *
      * @return string
      */
@@ -355,7 +354,7 @@ class FileInfo
     }
 
     /**
-     * set is readable
+     * set is readable.
      *
      * @param int $read
      *
@@ -369,7 +368,7 @@ class FileInfo
     }
 
     /**
-     * get is readable
+     * get is readable.
      *
      * @return int
      */
@@ -379,7 +378,7 @@ class FileInfo
     }
 
     /**
-     * set file size in bytes
+     * set file size in bytes.
      *
      * @param int $size
      *
@@ -393,7 +392,7 @@ class FileInfo
     }
 
     /**
-     * get file size in bytes
+     * get file size in bytes.
      *
      * @return int
      */
@@ -430,7 +429,7 @@ class FileInfo
 
     /**
      * set Thumbnail file name
-     * Only for images. Thumbnail file name, if file do not have thumbnail yet, but it can be generated than it must have value "1"
+     * Only for images. Thumbnail file name, if file do not have thumbnail yet, but it can be generated than it must have value "1".
      *
      * @param string $tmb
      *
@@ -445,7 +444,7 @@ class FileInfo
 
     /**
      * get Thumbnail file name
-     * Only for images. Thumbnail file name, if file do not have thumbnail yet, but it can be generated than it must have value "1"
+     * Only for images. Thumbnail file name, if file do not have thumbnail yet, but it can be generated than it must have value "1".
      *
      * @return string
      */
@@ -503,7 +502,7 @@ class FileInfo
     }
 
     /**
-     * set is writable
+     * set is writable.
      *
      * @param int $write
      *
@@ -517,7 +516,7 @@ class FileInfo
     }
 
     /**
-     * get is writable
+     * get is writable.
      *
      * @return int
      */
@@ -528,11 +527,11 @@ class FileInfo
 
     public static function createHash($name, $driverId)
     {
-        return $driverId . '_' . static::encode($name);
+        return $driverId.'_'.static::encode($name);
     }
 
     /**
-     * encode
+     * encode.
      *
      * @param string $name
      *
@@ -546,7 +545,7 @@ class FileInfo
     }
 
     /**
-     * decode
+     * decode.
      *
      * @param string $hash
      *
@@ -558,7 +557,7 @@ class FileInfo
     }
 
     /**
-     * check File is Dir
+     * check File is Dir.
      *
      * @return bool
      */
@@ -568,7 +567,7 @@ class FileInfo
     }
 
     /**
-     * FileInfo return as array
+     * FileInfo return as array.
      *
      * @return array
      */
@@ -591,7 +590,7 @@ class FileInfo
             'dim' => $this->dim,
             'volumeid' => $this->volumeid,
             'path' => $this->path,
-            'url' => $this->url
+            'url' => $this->url,
         );
 
         return array_filter(
@@ -601,5 +600,4 @@ class FileInfo
             }
         );
     }
-
 }

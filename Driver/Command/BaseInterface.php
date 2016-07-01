@@ -6,7 +6,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector\Driver\Command;
 
 use FDevs\ElfinderPhpConnector\Response;
@@ -14,7 +13,7 @@ use FDevs\ElfinderPhpConnector\Response;
 interface BaseInterface
 {
     /**
-     * open directory
+     * open directory.
      *
      * @param Response $response
      * @param string   $target
@@ -35,7 +34,7 @@ interface BaseInterface
     public function file(Response $response, $target, $download = false);
 
     /**
-     * Return folder's subfolders on required (in connector options) deep
+     * Return folder's subfolders on required (in connector options) deep.
      *
      * @param Response $response
      * @param string   $target
@@ -43,7 +42,7 @@ interface BaseInterface
     public function tree(Response $response, $target);
 
     /**
-     * Return all parents folders and its subfolders on required (in connector options) deep
+     * Return all parents folders and its subfolders on required (in connector options) deep.
      *
      * @param Response $response
      * @param string   $target
@@ -59,7 +58,7 @@ interface BaseInterface
     public function ls(Response $response, $target);
 
     /**
-     * search for files
+     * search for files.
      *
      * @param Response $response
      * @param string   $q
@@ -67,11 +66,10 @@ interface BaseInterface
     public function search(Response $response, $q);
 
     /**
-     * return size for selected files or total folder(s) size
+     * return size for selected files or total folder(s) size.
      *
      * @param Response $response
      * @param array    $targets
      */
     public function size(Response $response, array $targets);
-
 }

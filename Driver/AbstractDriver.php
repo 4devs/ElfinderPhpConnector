@@ -6,7 +6,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\Connector;
@@ -29,7 +28,7 @@ abstract class AbstractDriver implements DriverInterface
     private $options = [
         'disabled' => [],
         'separator' => DIRECTORY_SEPARATOR,
-        'archivers' => ['create' => [], 'extract' => []]
+        'archivers' => ['create' => [], 'extract' => []],
     ];
 
     /**
@@ -38,7 +37,7 @@ abstract class AbstractDriver implements DriverInterface
     protected $driverOptions = array();
 
     /**
-     * add option
+     * add option.
      *
      * @param string $key
      * @param mixed  $value
@@ -53,7 +52,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setDriverId($driverId)
     {
@@ -63,7 +62,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDriverId()
     {
@@ -71,7 +70,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setConnector(Connector $connector)
     {
@@ -81,7 +80,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setDisabledCmd(array $cmd)
     {
@@ -93,7 +92,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function addDisabledCmd($cmd)
     {
@@ -108,7 +107,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function addOptions(array $options)
     {
@@ -118,7 +117,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isAllowedCommand($cmd = 'open')
     {
@@ -126,7 +125,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getOptions()
     {
@@ -134,7 +133,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setDriverOptions(array $options)
     {
@@ -144,7 +143,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function mount()
     {
@@ -152,7 +151,7 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function unmount()
     {

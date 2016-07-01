@@ -6,13 +6,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace FDevs\ElfinderPhpConnector;
 
 use FDevs\ElfinderPhpConnector\Driver\AbstractDriver;
 use FDevs\ElfinderPhpConnector\Driver\DriverInterface;
 use FDevs\ElfinderPhpConnector\Exception\Exception;
-use FDevs\ElfinderPhpConnector\Exception\RuntimeException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -20,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 class Connector
 {
     /**
-     * Commands and required arguments list
+     * Commands and required arguments list.
      *
      * @var array
      **/
@@ -42,7 +40,7 @@ class Connector
             'dst' => true,
             'targets' => true,
             'cut' => false,
-            'interface' => 'File'
+            'interface' => 'File',
         ),
         'info' => array('targets' => true, 'interface' => 'File'),
         'tmb' => array('targets' => true, 'interface' => 'Image'),
@@ -54,7 +52,7 @@ class Connector
             'x' => false,
             'y' => false,
             'degree' => false,
-            'interface' => 'Image'
+            'interface' => 'Image',
         ],
         'dim' => array('target' => true, 'interface' => 'Image'),
         'mkfile' => array('target' => true, 'name' => true, 'mimes' => false, 'interface' => 'Text'),
@@ -71,8 +69,8 @@ class Connector
             'pass' => true,
             'alias' => false,
             'options' => false,
-            'interface' => 'Addition'
-        ]
+            'interface' => 'Addition',
+        ],
     );
 
     /** @var array */
@@ -97,7 +95,7 @@ class Connector
     private $debug = false;
 
     /**
-     * run command
+     * run command.
      *
      * @param string $cmd
      * @param array  $args
@@ -113,7 +111,7 @@ class Connector
         $driverId = isset($args['target']) ? $this->getDriverId($args['target']) : '';
         $driverId = !$driverId && isset($args['targets']) ? $this->getDriverId(current($args['targets'])) : $driverId;
         $interface = $this->getInterfaceByCmd($cmd);
-        /**
+        /*
          * @var string          $name
          * @var DriverInterface $driver
          */
@@ -155,9 +153,9 @@ class Connector
     }
 
     /**
-     * set Debug
+     * set Debug.
      *
-     * @param boolean $debug
+     * @param bool $debug
      *
      * @return $this
      */
@@ -169,7 +167,7 @@ class Connector
     }
 
     /**
-     * add Driver
+     * add Driver.
      *
      * @param DriverInterface $driver
      *
@@ -184,7 +182,7 @@ class Connector
     }
 
     /**
-     * set All Drivers
+     * set All Drivers.
      *
      * @param array $drivers
      *
@@ -201,7 +199,7 @@ class Connector
     }
 
     /**
-     * error Handling
+     * error Handling.
      *
      * @param string $message
      *
@@ -218,7 +216,7 @@ class Connector
     }
 
     /**
-     * set Logger
+     * set Logger.
      *
      * @param LoggerInterface $logger
      *
@@ -232,7 +230,7 @@ class Connector
     }
 
     /**
-     * get Driver Id from hash target
+     * get Driver Id from hash target.
      *
      * @param string $targetHash
      *
@@ -248,7 +246,7 @@ class Connector
     }
 
     /**
-     * run cmd
+     * run cmd.
      *
      * @param DriverInterface $driver
      * @param string          $cmd
@@ -277,7 +275,7 @@ class Connector
     }
 
     /**
-     * get Interface By Cmd
+     * get Interface By Cmd.
      *
      * @param string $cmd
      *
@@ -285,11 +283,11 @@ class Connector
      */
     private function getInterfaceByCmd($cmd)
     {
-        return 'FDevs\ElfinderPhpConnector\Driver\Command\\' . $this->commands[$cmd]['interface'] . 'Interface';
+        return 'FDevs\ElfinderPhpConnector\Driver\Command\\'.$this->commands[$cmd]['interface'].'Interface';
     }
 
     /**
-     * add Disabled Command
+     * add Disabled Command.
      *
      * @param AbstractDriver $driver
      *
@@ -308,7 +306,7 @@ class Connector
     }
 
     /**
-     * get Allowed Arguments
+     * get Allowed Arguments.
      *
      * @param array    $args
      * @param string   $cmd
@@ -349,5 +347,4 @@ class Connector
     {
         return FileInfo::decode(substr($target, strlen($driverId) + 1));
     }
-
 }
