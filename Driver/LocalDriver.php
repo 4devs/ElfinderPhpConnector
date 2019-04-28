@@ -168,7 +168,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
         );
         $files = array_map(
             function ($val) {
-                return basename($val);
+                return $this->basename($val);
             },
             $files
         );
@@ -528,7 +528,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
         }
         $fileStat = stat($file);
         $directory = dirname($file) == '.' ? '' : dirname($file);
-        $fileInfo = new FileInfo(basename($file), $this->getDriverId(), $fileStat['mtime'], $directory);
+        $fileInfo = new FileInfo($this->basename($file), $this->getDriverId(), $fileStat['mtime'], $directory);
         $fileInfo->setSize($fileStat['size']);
         $fileInfo->setWrite(is_writable($file));
         $fileInfo->setMime($this->getMimeType($file));
@@ -609,5 +609,10 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
                 $file->setDirs(1);
             }
         }
+    }
+
+    private function basename($param)
+    {
+        return ltrim(mb_substr($param, mb_strrpos($param, DIRECTORY_SEPARATOR)), DIRECTORY_SEPARATOR);  
     }
 }
