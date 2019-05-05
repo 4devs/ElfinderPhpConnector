@@ -6,6 +6,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace FDevs\ElfinderPhpConnector\Driver;
 
 use FDevs\ElfinderPhpConnector\Driver\Command\FileInterface;
@@ -296,7 +297,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
             if (is_dir($target)) {
                 $this->copyDir($response, $target, $dst);
             } else {
-                $fileName = $dst.DIRECTORY_SEPARATOR.pathinfo($target, PATHINFO_BASENAME);
+                $fileName = $dst.DIRECTORY_SEPARATOR.$this->basename($target);
                 copy($target, $fileName);
                 $response->addAdded($this->getFileInfo($dst.DIRECTORY_SEPARATOR.$fileName));
             }
@@ -361,7 +362,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
                     mkdir($tmbPath);
                 }
                 $filename = FileInfo::createHash($target, $this->driverId);
-                $tmbFile = $tmbPath.$pInfo['basename'];
+                $tmbFile = $tmbPath.$this->basename($target);
                 $image = $manager->make($target);
                 $image->fit($this->driverOptions['tmbSize']);
                 $image->save($tmbFile);
@@ -430,7 +431,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     /**
      * add Additional Image.
      *
-     * @param array                    $additionalImage
+     * @param array           $additionalImage
      * @param OptionsResolver $resolver
      *
      * @return $this
@@ -490,7 +491,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
             if (is_dir($name)) {
                 $this->copyDir($response, $name, $newFolder);
             } else {
-                $filename = $newFolder.DIRECTORY_SEPARATOR.pathinfo($name, PATHINFO_BASENAME);
+                $filename = $newFolder.DIRECTORY_SEPARATOR.$this->basename($name);
                 copy($name, $filename);
                 $response->addAdded($this->getFileInfo($filename));
             }
@@ -593,7 +594,7 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
     {
         $pInfo = pathinfo($name);
 
-        return $pInfo['dirname'].DIRECTORY_SEPARATOR.$this->driverOptions['tmbPath'].DIRECTORY_SEPARATOR.$pInfo['basename'];
+        return $pInfo['dirname'].DIRECTORY_SEPARATOR.$this->driverOptions['tmbPath'].DIRECTORY_SEPARATOR.$this->basename($name);
     }
 
     /**
@@ -613,6 +614,6 @@ class LocalDriver extends AbstractDriver implements FileInterface, TextInterface
 
     private function basename($param)
     {
-        return ltrim(mb_substr($param, mb_strrpos($param, DIRECTORY_SEPARATOR)), DIRECTORY_SEPARATOR);  
+        return ltrim(mb_substr($param, mb_strrpos($param, DIRECTORY_SEPARATOR)), DIRECTORY_SEPARATOR);
     }
 }
